@@ -103,6 +103,7 @@ void uart_puts(const char* str)
 #if defined(__cplusplus)
 extern "C" /* Use C linkage for kernel_main. */
 #endif
+
 void kernel_main(unsigned long r0, unsigned long r1, unsigned long atags)
 {
 	// Declare as unused
@@ -111,7 +112,7 @@ void kernel_main(unsigned long r0, unsigned long r1, unsigned long atags)
 	(void) atags;
  
 	uart_init();
-	uart_puts("Hello, kernel World!\r\n");
+	uart_puts("Kernel Program Started\r\n");
  
 	while (1) {
 		uart_putc(uart_getc());

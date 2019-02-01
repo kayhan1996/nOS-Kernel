@@ -1,30 +1,34 @@
-COMPILER = aarch64-elf-gcc
-LINKER = aarch64-elf-ld
-CFLAGS = -ffreestanding -nostdinc -nostdlib -nostartfiles
-LFLAGS = -nostdlib -nostartfiles
+ARMGNU ?= aarch64-elf
 
-KERNEL_SRC = ../src/kernel
-KERNEL_HEADERS = ../include
-OBJ_DIR = objects
+COPS = -Wall -nostdlib -nostartfiles -ffreestanding -Iinclude -mgeneral-regs-only
+ASMOPS = -Iinclude 
 
-KERNEL_SOURCES = $(wildcard $(KERNEL_SRC)/*.c)
-ASM_SOURCES = $(wildcard $(KERNEL_SRC)/.S)
+BUILD_DIR = ../build/objects
+SRC_DIR = ../src/kernel
 
-OBJECTS = $(patsubst $(KERNEL_SRC)/%.c, $(OBJ_DIR)/%.o, $(KERNEL_SOURCES))
-OBJECTS += $(patsubst $(KERNEL_SRC)/%.S, $(OBJ_DIR)/%.o, $(ASM_SOURCES))
-HEADERS = $(wildcard $(KERNEL_HEADERS)/*h)
+all : kernel8.img
 
-IMG_NAME = kernel8.img
+clean :
+	rm -rf $(BUILD_DIR) *.img 
 
-build: $(OBJECTS) $(HEADERS)
-	echo	$(OBJECTS)
-	echo	"Bravo"
-	$(LINKER) -T linker.ld -o $(IMG_NAME) $(LFLAGS) $(OBJECTS)
-
-$(OBJ_DIR)/%.o: $(KER_SRC)/%.c
+$(BUILD_DIR)/%_c.o: $(SRC_DIR)/%.c
 	mkdir -p $(@D)
-	$(CC) $(CFLAGS) -I$(KERNEL_SRC) -c $< -o $@ $(CFLAGS)
+	$(ARMGNU)-gcc $(COPS) -MMD -c $< -o $@
 
-$(OBJ_DIR)/%.o: $(KERNEL_SRC)/%.S
-	mkdir -p $(@D)
-	$(CC) $(CFLAGS) -I$(KERNEL_SRC) -c $< -o $@
+$(BUILD_DIR)/%_s.o: $(SRC_DIR)/%.S
+	$(ARMGNU)-gcc $(ASMOPS) -MMD -c $< -o $@
+
+C_FILES = $(wildcard $(SRC_DIR)/*.c)
+ASM_FILES = $(wildcard $(SRC_DIR)/*.S)
+OBJ_FILES = $(C_FILES:$(SRC_DIR)/%.c=$(BUILD_DIR)/%_c.o)
+OBJ_FILES += $(ASM_FILES:$(SRC_DIR)/%.S=$(BUILD_DIR)/%_s.o)
+
+DEP_FILES = $(OBJ_FILES:%.o=%.d)
+-include $(DEP_FILES)
+
+kernel8.img: $(SRC_DIR)/linker.ld $(OBJ_FILES)
+	$(ARMGNU)-ld -T $(SRC_DIR)/linker.ld -o $(BUILD_DIR)/kernel8.elf  $(OBJ_FILES)
+	$(ARMGNU)-objcopy $(BUILD_DIR)/kernel8.elf -O binary kernel8.img
+
+run : kernel8.img
+	qemu-system-aarch64 -M raspi3 -serial stdio -kernel kernel8.img
