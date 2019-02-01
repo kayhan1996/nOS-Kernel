@@ -5,7 +5,7 @@ extern unsigned int mmio_read ( unsigned long ) __asm__("mmio_read");
 enum
 {
     // The GPIO registers base address.
-    GPIO_BASE = 0x3F200000, // for raspi2 & 3, 0x20200000 for raspi1
+    GPIO_BASE = 0x3F200000, // for raspi2 & 3
  
     // The offsets for reach register.
  
@@ -117,5 +117,7 @@ void kernel_main(unsigned long r0, unsigned long r1, unsigned long atags)
 	while (1) {
 		uart_putc(uart_getc());
         uart_putc('\n');
+		delay(200000000);
+		uart_puts("Done\n");
     }
 }
