@@ -1,36 +1,28 @@
 .section ".text.boot"
 
-.global _start
+.globl _start
 
 _start:
-    //definitions of the CP15 registers in the core-specific Technical Reference Manual (TRM)
-    //Accesses MPIDR, "Read Multiprocessor Affinity Register
-    mrc p15, #0, r1, c0, c0, #5 //Reads processor number from hidden core register and places it in r1
-    and r1, r1, #3  //CPU ID for 4 Processors
-    cmp r1, #0      //If CPU ID == 0
-    bne halt    //if not core 0, go to halt
-
-    mov sp, #0x8000
-
-    ldr r4, =__bss_start
-    mov r5, #0
-    mov r6, #0
-    mov r7, #0
-    mov r8, #0
-    ldr r9, =__bss_end
-    bne     2f  //branch if not equal label 2 in the forward, can also use .2
+    mrs x0, mpidr_el1   //retrieves core registers info on processor affinity
+    and x0, x0, #3      //Checks if not processor 0
+    cbz x0, 1f          //branch to 1
+hang:
+    b hang
 
 1:
-    //stores 4 x 8 bit values from r5-r8 = 0x0000 into the location at r4
-    //effectively zeros out the bss
-    stmia r4!, {r5-r8}  //store multiple Increment After
-2:
-    cmp r4, r9
-    blo 1b      //branch if not equal label 1 in the backwards
+    adr x0, __bss_start //Defined in linker.ld
+    adr x1, __bss_end   //Defined in linker.ld
+    sub x1, x1, x0
+    bl  memzero
 
-    ldr r3, =kernel_main
-    blx r3      //after return, go to halt
+    ldr x1, =_start
+    mov sp, x1
 
-halt:   //infinite loop where the cores 1-3 wait for event
-    wfe
-    b halt
+    bl  kernel_main     //jump to main function
+    b   hang            //main should never return
+    
+
+memzero:
+    str wzr, [x0], #8   //zero out address at x0, then increment x0 by 8 bytes
+    b.gt memzero
+    ret 
