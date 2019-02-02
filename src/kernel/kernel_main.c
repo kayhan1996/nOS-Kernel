@@ -13,7 +13,9 @@ void kernel_main(unsigned long r0, unsigned long r1, unsigned long atags)
 	(void) atags;
  
 	uart_init();
-	println("Kernel Program Started\r\n");
+	println("UART initiated");
+	println("Kernel Program Started");
+
  
 	while (1) {
 		uart_putc(uart_getc());

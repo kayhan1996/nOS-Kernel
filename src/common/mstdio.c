@@ -3,4 +3,5 @@
 
 void println(const char *str){
     uart_puts(str);
+    uart_putc('\n');
 }
