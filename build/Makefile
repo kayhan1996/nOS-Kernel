@@ -47,6 +47,7 @@ HEADER_FILES += $(wildcard $(HEADER_DIR))
 
 build: $(OBJ_FILES) $(HEADER_FILES)
 	@echo $(OBJ_FILES)
+	mkdir -p $(BIN_DIR)
 	$(COMPILER)-ld -T $(KERNEL_SRC_DIR)/linker.ld -o $(BIN_DIR)/kernel8.elf  $(OBJ_FILES)
 	$(COMPILER)-objcopy $(BIN_DIR)/kernel8.elf -O binary ../bin/kernel8.img
 	@echo 	"BUILD SUCCESS"
