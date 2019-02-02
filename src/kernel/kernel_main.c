@@ -1,4 +1,5 @@
 #include "uart.h"
+#include "mstdio.h"
 
 #if defined(__cplusplus)
 extern "C" /* Use C linkage for kernel_main. */
@@ -12,7 +13,7 @@ void kernel_main(unsigned long r0, unsigned long r1, unsigned long atags)
 	(void) atags;
  
 	uart_init();
-	uart_puts("Kernel Program Started\r\n");
+	println("Kernel Program Started\r\n");
  
 	while (1) {
 		uart_putc(uart_getc());

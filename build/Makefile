@@ -1,11 +1,12 @@
 COMPILER ?= aarch64-elf
 
-COPS = -Wall -nostdlib -nostartfiles -ffreestanding 
+COPS = -nostdlib -nostartfiles -ffreestanding 
 ASMOPS = -nostdlib -nostartfiles -ffreestanding 
 
 BUILD_DIR = ../build/objects
 BIN_DIR = ../bin
 KERNEL_SRC_DIR = ../src/kernel
+COMMON_SRC_DIR = ../src/common
 OBJ_DIR = objects
 HEADER_DIR = ../include
 
@@ -23,6 +24,11 @@ $(BUILD_DIR)/%.o: $(KERNEL_SRC_DIR)/%.c
 	mkdir -p $(@D)
 	$(COMPILER)-gcc $(COPS) -I$(HEADER_DIR) -c $<  -o $@
 
+$(BUILD_DIR)/%.o: $(COMMON_SRC_DIR)/%.c
+	@echo	"START: Creating object files from common *.c files"
+	mkdir -p $(@D)
+	$(COMPILER)-gcc $(COPS) -I$(HEADER_DIR) -c $<  -o $@
+
 #DIFFERENTIAL BUILDS FOR *.S files
 $(BUILD_DIR)/%.o: $(KERNEL_SRC_DIR)/%.S
 	@echo	"START: Creating object files from *.S files"
@@ -30,9 +36,11 @@ $(BUILD_DIR)/%.o: $(KERNEL_SRC_DIR)/%.S
 	$(COMPILER)-gcc $(ASMOPS) -c $< -o $@
 
 C_FILES = $(wildcard $(KERNEL_SRC_DIR)/*.c)
+COMMON_C_FILES = $(wildcard $(COMMON_SRC_DIR)/*.c)
 ASM_FILES = $(wildcard $(KERNEL_SRC_DIR)/*.S)
 
 OBJ_FILES = $(C_FILES:$(KERNEL_SRC_DIR)/%.c=$(BUILD_DIR)/%.o)
+OBJ_FILES += $(COMMON_C_FILES:$(COMMON_SRC_DIR)/%.c=$(BUILD_DIR)/%.o)
 OBJ_FILES += $(ASM_FILES:$(KERNEL_SRC_DIR)/%.S=$(BUILD_DIR)/%.o)
 
 HEADER_FILES += $(wildcard $(HEADER_DIR))
