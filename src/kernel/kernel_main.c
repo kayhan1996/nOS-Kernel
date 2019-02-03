@@ -1,5 +1,6 @@
 #include "uart.h"
 #include "mstdio.h"
+#include "mailbox.h"
 
 #if defined(__cplusplus)
 extern "C" /* Use C linkage for kernel_main. */
@@ -7,20 +8,33 @@ extern "C" /* Use C linkage for kernel_main. */
 
 void kernel_main(unsigned long r0, unsigned long r1, unsigned long atags)
 {
-	// Declare as unused
-	(void) r0;
-	(void) r1;
-	(void) atags;
- 
 	uart_init();
 	println("UART initiated");
 	println("Kernel Program Started");
 
+
+	mailbox[0] = 8*4;
+	mailbox[1] = MBOX_REQUEST;
+	mailbox[2] = MBOX_TAG_GETSERIAL;
+
+	mailbox[3] = 8;
+	mailbox[4] = 8;
+	mailbox[5] = 0;
+	mailbox[6] = 0;
+
+	mailbox[7] = MBOX_TAG_LAST;
+
+	if(callMailBox(MBOX_CH_PROP)){
+		println("Sucess");
+	}else{
+		println("Fail");
+	}
+
+	printhex(29);
  
 	while (1) {
 		uart_putc(uart_getc());
         uart_putc('\n');
-		delay(200000000);
 		uart_puts("Done\n");
     }
 }
