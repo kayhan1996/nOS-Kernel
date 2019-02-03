@@ -12,7 +12,6 @@ void kernel_main(unsigned long r0, unsigned long r1, unsigned long atags)
 	println("UART initiated");
 	println("Kernel Program Started");
 
-
 	mailbox[0] = 8*4;
 	mailbox[1] = MBOX_REQUEST;
 	mailbox[2] = MBOX_TAG_GETSERIAL;
@@ -24,17 +23,17 @@ void kernel_main(unsigned long r0, unsigned long r1, unsigned long atags)
 
 	mailbox[7] = MBOX_TAG_LAST;
 
+	print("Address of mailbox: ");
+	printhex(mailbox);
+
 	if(callMailBox(MBOX_CH_PROP)){
-		println("Sucess");
+		println("Success");
 	}else{
 		println("Fail");
 	}
 
-	printhex(29);
- 
 	while (1) {
 		uart_putc(uart_getc());
         uart_putc('\n');
-		uart_puts("Done\n");
     }
 }
