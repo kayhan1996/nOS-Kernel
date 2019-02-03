@@ -23,11 +23,12 @@ void kernel_main(unsigned long r0, unsigned long r1, unsigned long atags)
 
 	mailbox[7] = MBOX_TAG_LAST;
 
-	print("Address of mailbox: ");
-	printhex(mailbox);
-
 	if(callMailBox(MBOX_CH_PROP)){
 		println("Success");
+		print("Serial Number: ");
+		printhex(mailbox[6]);
+		printhex(mailbox[5]);
+		println("");
 	}else{
 		println("Fail");
 	}
