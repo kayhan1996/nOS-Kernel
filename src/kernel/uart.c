@@ -20,7 +20,7 @@ unsigned char uart_getc()
     return mmio_read(UART0_DR);
 }
 
-void uart_init()
+void init_uart()
 {
 	// Disable UART0.
 	mmio_write(UART0_CR, 0x00000000);
@@ -59,4 +59,6 @@ void uart_init()
  
 	// Enable UART0, receive & transfer part of UART.
 	mmio_write(UART0_CR, (1 << 0) | (1 << 8) | (1 << 9));
+
+	println("UART initiated");
 }

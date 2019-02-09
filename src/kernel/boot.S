@@ -20,9 +20,11 @@ hang:
 
     bl  kernel_main     //jump to main function
     b   hang            //main should never return
-    
+
 
 memzero:
     str wzr, [x0], #8   //zero out address at x0, then increment x0 by 8 bytes
     b.gt memzero
-    ret 
+    ret
+    
+

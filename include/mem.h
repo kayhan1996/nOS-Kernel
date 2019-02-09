@@ -5,7 +5,6 @@
 
     #define PAGE_SIZE 4096
     void init_memory();
-    void zero_memory(void *start, uint64_t bytes);
 
     uint64_t get_memory_size();
 
@@ -31,6 +30,7 @@
     } page_list;
 
     void init_page_list(page_list *page_list);
+
     void page_list_append(page_list *self, page *node);
     void page_list_push(page_list *self, page *node);
     page* page_list_pop(page_list *self);

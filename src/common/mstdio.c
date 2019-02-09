@@ -10,8 +10,17 @@ void print(const char *str){
     uart_puts(str);
 }
 
+int pow(int b, int e){
+    int result = b;
+    for(int i = 1; i < e; i++){
+        result *= b;
+    }
+    return result;
+}
+
 void printhex(unsigned int number){
     unsigned int n;
+    uart_puts("0x");
     for(int i = 28; i >= 0; i -= 4){
         n = (number >> i);
         n &= 0xF;
@@ -19,3 +28,15 @@ void printhex(unsigned int number){
         uart_putc(n);
     }
 }
+
+void printdec(unsigned int number){
+    int p, r;
+    for(int i = 16; i > 0; i--){
+        p = pow(10, i);
+        r = number / p;
+        uart_putc(r + 0x30);
+        number -= p * r;
+    }
+    uart_putc(number + 0x30);
+}
+

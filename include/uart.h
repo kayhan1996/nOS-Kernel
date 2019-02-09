@@ -2,7 +2,7 @@
 #define UART_H
 
 void uart_putc(unsigned char c);
-void uart_init();
+void init_uart();
 unsigned char uart_getc();
 void uart_puts(const char* str);
 
