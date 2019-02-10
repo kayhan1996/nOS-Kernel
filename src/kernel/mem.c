@@ -10,7 +10,7 @@ page_list *all_free_pages;
 void zero_memory(void *start_address, int bytes){
     println("Zeroing Memory");
     print("Start address: "); printhex(start_address); println("");
-    uint8_t *address = start_address;
+    uint16_t *address = start_address;
     while(bytes--){
         *address++ = 0;
     }
@@ -42,9 +42,7 @@ void init_memory(){
 
     zero_memory(all_pages, page_array_length);
 
-    uint64_t tmp = 0xbbffffffffffffbb;
-    printhex(&tmp);
-    print_stack();
+    print_memory();
 
     init_page_list(all_free_pages);
     println("initialized free page list");

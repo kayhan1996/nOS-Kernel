@@ -3,8 +3,21 @@
 #include "stdint.h"
 #include "uart.h"
 
+static print_value(uint64_t *address){
+    volatile uint64_t value = *address;
+    printhex(address); print("  |  "); printhex(value); println("");
+}
 
-void print_stack(){
+static void print_list(uint64_t *address, int count){
+    print("---------------------------------------------------\n");
+    print("                       |     12 |  8 |  4 |  0 |\n");
+    for(int i = 0; i < count; i++){
+        print_value(address);
+        address -= 2;
+    }
+}
+
+void print_memory(){
     register uint64_t *sp = 0;
 
     
@@ -18,9 +31,8 @@ void print_stack(){
     uint64_t value = *stack;
     char flag;
 
-    print("(q for quit), (UP), (DOWN)\n\n");
-    print("        Address        |           ");
-    print("Value\n");
+    print("(q to Quit), (s to Search), (r to Return to Stack Pointer) (UP), (DOWN)\n\n");
+    print("        Address        |           Value\n");
 
     do{
         
@@ -28,28 +40,19 @@ void print_stack(){
         flag = uart_getc();
 
         if(flag == 0x41){
-            print("---------------------------------------------------\n");
-            print("                       |     12 |  8 |  4 |  0 |\n");
-            for(int i = 0; i < 4; i++){
-                printhex(stack);
-                print("  |  ");
-                printhex(value);
-                println("");
-                stack += 2;
-                value = *stack;
-            }
+            stack += 2 * 4;
+            print_list(stack, 4);
         }else if(flag == 0x42){
-            print("---------------------------------------------------\n");
-            print("                       |     12 |  8 |  4 |  0 |\n");
-            for(int i = 0; i < 4; i++){
-                stack;
-                printhex(stack);
-                print("  |  ");
-                printhex(value);
-                println("");
-                stack -= 2;
-                value = *stack;
-            }
+            stack -= 2 * 4;
+            print_list(stack, 4);
+        }else if(flag == 's'){
+            print("Search for address: ");
+            stack = gethex();
+            print_list(stack, 4);
+        }else if(flag == 'r'){
+            print("Return to stack pointer\n");
+            stack = sp;
+            print_list(stack, 4);
         }
 
         
