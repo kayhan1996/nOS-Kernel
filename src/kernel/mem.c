@@ -1,5 +1,6 @@
 #include "mem.h"
 #include "mstdio.h"
+#include "debug.h"
 
 extern uint64_t __END;
 
@@ -41,13 +42,14 @@ void init_memory(){
 
     zero_memory(all_pages, page_array_length);
 
-    uint64_t *tmp = 
-
-    
+    uint64_t tmp = 0xbbffffffffffffbb;
+    printhex(&tmp);
+    print_stack();
 
     init_page_list(all_free_pages);
     println("initialized free page list");
     uint64_t kernel_pages = (uint64_t)(&__END)/(PAGE_SIZE);
+
  
     uint64_t i;
     for(i = 0; i < kernel_pages; i++){

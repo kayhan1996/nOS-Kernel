@@ -1,5 +1,6 @@
 #include "mstdio.h"
 #include "uart.h"
+#include "stdint.h"
 
 void println(const char *str){
     uart_puts(str);
@@ -18,10 +19,11 @@ int pow(int b, int e){
     return result;
 }
 
-void printhex(unsigned int number){
+void printhex(uint64_t number){
     unsigned int n;
     uart_puts("0x");
-    for(int i = 28; i >= 0; i -= 4){
+    for(int i = 60; i >= 0; i -= 4){
+        if((i+4) % 16 == 0 && i != 60) print(" ");
         n = (number >> i);
         n &= 0xF;
         n += (n > 9) ? 0x37 : 0x30;
