@@ -12,7 +12,7 @@ void zero_memory(void *start_address, int bytes){
     print("Start address: "); printhex(start_address); println("");
     uint16_t *address = start_address;
     while(bytes--){
-        *address++ = 0;
+        *address++ = 0x0;
     }
     print("End address: "); printhex(address); println("");
     println("Memory Zeroed\n");
@@ -42,8 +42,6 @@ void init_memory(){
 
     zero_memory(all_pages, page_array_length);
 
-    print_memory();
-
     init_page_list(all_free_pages);
     println("initialized free page list");
     uint64_t kernel_pages = (uint64_t)(&__END)/(PAGE_SIZE);
@@ -54,15 +52,14 @@ void init_memory(){
         all_pages[i].allocated = 1;
         all_pages[i].kernel_reserved = 1;
         all_pages[i].virtual_mapped_address = i * PAGE_SIZE;
-
-        //print("Marked kernel page "); printdec(i); print(" of 129\n");
+        print_memory(&all_pages[i]);
     }
     println("Reserved pages");
 
     for(; i < 16380; i++){
         all_pages[i].allocated = 0;
         all_free_pages->append(all_free_pages, &all_pages[i]);
-        //print("Marked page "); printdec(i); print(" of "); printdec(number_of_pages - kernel_pages); println("");
+        
     }
     println("Memory Initialized"); 
 
@@ -75,7 +72,7 @@ uint64_t get_memory_size(){
 void init_page_list(page_list *page_list){
     page_list->head = NULL;
     page_list->tail = NULL;
-    page_list->size = 0;
+    page_list->size = 0xfffff;
     page_list->append = page_list_append;
     page_list->push = page_list_push;
     page_list->pop = page_list_pop;

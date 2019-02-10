@@ -11,11 +11,10 @@
     typedef struct page{
         uint8_t allocated : 1;
         uint8_t kernel_reserved : 1;
-
+        uint64_t reserved : 62;
+        page *next_page : 64;
+        page *prev_page : 64;
         uint64_t virtual_mapped_address : 64;
-        
-        struct page *next_page;
-        struct page *prev_page;
     } page;
 
     typedef struct page_list{
