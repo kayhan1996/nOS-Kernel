@@ -18,8 +18,8 @@
     typedef struct page{
         uint64_t vmapped_address;
         page_flags_t flags;
-        struct page *next_page;
         struct page *prev_page;
+        struct page *next_page;
     } page_t;
 
     typedef struct page_list{

@@ -17,7 +17,7 @@ void kernel_main(unsigned long r0, unsigned long r1, unsigned long atags)
 	println("Kernel Program Started");
 	char flag;
 	while (1) {
-		println("\n\n\n\n\n_________________________________________");
+		println("\n_________________________________________");
 		println("Select program to run: ");
 		println("A) Memory Explorer");
 		println("B) Page Explorer");

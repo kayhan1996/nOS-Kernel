@@ -56,7 +56,7 @@ void print_memory(uint64_t *new_address){
             print("---------------------------------------------------\n");
             print("Search for Address: ");
             stack = gethex();
-            stack += 6;
+            stack += 3;
             print_list(stack, 4);
         }else if(flag == 'r'){
             print("---------------------------------------------------\n");

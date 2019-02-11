@@ -36,7 +36,7 @@ void init_memory(){
     
     uint64_t i;
 
-    uint64_t kernel_pages = (uint64_t)(&__end)/(PAGE_SIZE);
+    uint64_t kernel_pages = (uint64_t)(&__end + page_array_length)/(PAGE_SIZE);
 
     print("Number of kernel pages: "); printhex(kernel_pages); println("");
     for(i = 0; i < kernel_pages; i++){
@@ -51,11 +51,7 @@ void init_memory(){
         all_pages[i].flags.allocated = 0;
         all_pages[i].vmapped_address = i * PAGE_SIZE;
         all_free_pages.append(&all_free_pages, &all_pages[i]);
-    }
-
-    traverse_list();
-
-    
+    }    
 }
 
 void traverse_list(){
