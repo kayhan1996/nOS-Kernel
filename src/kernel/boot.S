@@ -15,7 +15,7 @@ hang:
     sub x1, x1, x0
     bl  memzero
 
-    ldr x1, =_start
+    ldr x1, =__start
     mov sp, x1
 
     bl  kernel_main     //jump to main function

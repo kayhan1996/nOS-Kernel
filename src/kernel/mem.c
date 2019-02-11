@@ -2,10 +2,16 @@
 #include "mstdio.h"
 #include "debug.h"
 
-extern uint64_t __END;
+extern uint64_t __end;
+extern uint64_t __start;
+extern uint64_t __text_start;
+extern uint64_t __rodata_start;
+extern uint64_t __data_start;
+extern uint64_t __bss_start;
+extern uint64_t __bss_end;
 
-page_t *all_pages_array;
-page_list_t *all_free_pages_array;
+page_t *all_pages;
+page_list_t all_free_pages;
 
 void zero_memory(void *start_address, int bytes){
     println("Zeroing Memory");
@@ -22,19 +28,18 @@ void init_memory(){
     uint64_t memory_size = get_memory_size();                       //128MB
     uint64_t number_of_pages = (memory_size)/(PAGE_SIZE);           //32768 4KB pages 
     uint64_t page_array_length = sizeof(page_t) * number_of_pages;    
-    page_t *all_pages;
-    page_list_t *all_free_pages;
 
-    zero_memory(&__END, page_array_length);
-    init_page_list(all_free_pages);
-
+    all_pages = (page_t *)(&__end);
+    zero_memory(&__end, page_array_length);
+    init_page_list(&all_free_pages);
 
 
-    all_pages = (page_t *)(&__END);
+
+    
     
     uint64_t i;
 
-    uint64_t kernel_pages = (uint64_t)(&__END)/(PAGE_SIZE); 
+    uint64_t kernel_pages = (uint64_t)(__end)/(PAGE_SIZE); 
     for(i = 0; i < kernel_pages; i++){
         all_pages[i].allocated = 1;
         all_pages[i].kernel_reserved = 1;
@@ -48,18 +53,15 @@ void init_memory(){
         all_pages[i].allocated = 0;
         all_pages[i].kernel_reserved = 0;
         print_memory(all_free_pages);
-        all_free_pages->append(all_free_pages, &all_pages[i]);
+        all_free_pages.append(&all_free_pages, &all_pages[i]);
     }
-
-
-    all_pages_array = all_pages;
 }
 
 uint64_t get_memory_size(){
     return 1024 * 1024 * 128;
 }
 
-void init_page_list(page_list_t *page_list){
+void inline init_page_list(page_list_t *page_list){
     page_list->head = NULL;
     page_list->tail = NULL;
     page_list->size = 0xfffff;

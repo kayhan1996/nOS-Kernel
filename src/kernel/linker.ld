@@ -23,18 +23,19 @@ SECTIONS
 
 	__data_start = .;
 	.data : {
-		*(.rodata);
+		*(.data);
 	}
 	. = ALIGN(4096);
 	__data_end = .;
 
 	__bss_start = .;
-	.rodata : {
-		*(.rodata);
+	.bss :
+	{
+		*(.bss);
 	}
 	. = ALIGN(4096);
 	__bss_end = .;
 
-	__END = .;
+	__end = .;
 
 }
