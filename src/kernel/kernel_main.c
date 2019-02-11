@@ -24,9 +24,9 @@ void kernel_main(unsigned long r0, unsigned long r1, unsigned long atags)
 		flag = uart_getc();
 		
 		if(flag == 'a' || flag == 'A'){
-			traverse_list();
-		}else if(flag == 'b' || flag == 'B'){
 			print_memory(NULL);
+		}else if(flag == 'b' || flag == 'B'){
+			traverse_list();
 		}
 
     }
