@@ -5,6 +5,7 @@
 
     #define PAGE_SIZE 4096
     void init_memory();
+    void traverse_list();
 
     uint64_t get_memory_size();
 

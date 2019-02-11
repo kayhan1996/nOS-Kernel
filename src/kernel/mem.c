@@ -1,6 +1,7 @@
 #include "mem.h"
 #include "mstdio.h"
 #include "debug.h"
+#include "uart.h"
 
 extern uint64_t __end;
 extern uint64_t __start;
@@ -41,8 +42,9 @@ void init_memory(){
     for(i = 0; i < kernel_pages; i++){
         all_pages[i].flags.allocated = 1;
         all_pages[i].flags.kernel_page = 1;
-        all_pages[i].vmapped_address = i * PAGE_SIZE;
-        print_memory(&all_pages[i].flags);
+        all_pages[i].vmapped_address = i * PAGE_SIZE; //i * PAGE_SIZE;
+        all_pages[i].next_page = NULL;
+        all_pages[i].prev_page = NULL;
     }
     
     for(; i < number_of_pages; i++){
@@ -50,6 +52,40 @@ void init_memory(){
         all_pages[i].vmapped_address = i * PAGE_SIZE;
         all_free_pages.append(&all_free_pages, &all_pages[i]);
     }
+
+    traverse_list();
+
+    
+}
+
+void traverse_list(){
+    page_t *page = all_free_pages.head;
+    println("Traversing through linked list");
+
+    char flag;
+    do{
+    println("_________________________________");
+    print("|ADDRESS:  "); printhex(page); println(" |");
+    println("¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯");
+    print("|Next:     "); printhex(page->next_page); println(" |");
+    print("|Previous: "); printhex(page->prev_page); println(" |");
+    print("|link:     "); printhex(page->vmapped_address); println(" |");
+    print("|alloc:    "); printhex(page->flags.allocated); println(" |");
+    print("|kernel:   "); printhex(page->flags.kernel_page); println(" |");
+    println("¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯");
+    println("                |                ");
+    println("                |                ");
+    println("               \\ /               ");
+    println("                ^                ");
+    flag = uart_getc();
+
+    if(flag == 'q'){
+        break;
+    }else{
+
+    }
+    page = page->next_page;
+    }while(page != NULL);
 }
 
 uint64_t get_memory_size(){

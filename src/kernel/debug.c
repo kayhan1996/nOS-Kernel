@@ -12,9 +12,9 @@ static void print_list(uint64_t *address, int count){
     print("---------------------------------------------------\n");
     print("                       |     12 |  8 |  4 |  0 |\n");
     for(int i = 0; i < count; i++){
-        if(address >= 2){
+        if(address >= 100){
             print_value(address);
-            address -= 2;
+            address -= 1;
         }
     }
 }
@@ -35,7 +35,7 @@ void print_memory(uint64_t *new_address){
         print("\n--------------PRINTING MEMORY @"); printhex(new_address); println("-----------------");
         stack = new_address;
     }
-    stack -= 2;
+    stack -= 1;
     uint64_t value = *stack;    
     char flag = 0x41;
 
@@ -47,10 +47,10 @@ void print_memory(uint64_t *new_address){
         
 
         if(flag == 0x41){
-            stack += 2 * 4;
+            stack += 4;
             print_list(stack, 4);
         }else if(flag == 0x42){
-            stack -= 2 * 4;
+            stack -= 4;
             print_list(stack, 4);
         }else if(flag == 's'){
             print("---------------------------------------------------\n");
