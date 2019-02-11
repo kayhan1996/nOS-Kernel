@@ -32,27 +32,22 @@ void init_memory(){
     all_pages = (page_t *)(&__end);
     zero_memory(&__end, page_array_length);
     init_page_list(&all_free_pages);
-
-
-
-    
     
     uint64_t i;
 
-    uint64_t kernel_pages = (uint64_t)(__end)/(PAGE_SIZE); 
+    uint64_t kernel_pages = (uint64_t)(&__end)/(PAGE_SIZE);
+
+    print("Number of kernel pages: "); printhex(kernel_pages); println("");
     for(i = 0; i < kernel_pages; i++){
-        all_pages[i].allocated = 1;
-        all_pages[i].kernel_reserved = 1;
-        all_pages[i].reserved = 0xFFFF;
-        all_pages[i].virtual_mapped_address = i * PAGE_SIZE;
-        all_pages[i].next_page = NULL;
-        all_pages[i].prev_page = NULL;
+        all_pages[i].flags.allocated = 1;
+        all_pages[i].flags.kernel_page = 1;
+        all_pages[i].vmapped_address = i * PAGE_SIZE;
+        print_memory(&all_pages[i].flags);
     }
     
-    for(; i < 16380; i++){
-        all_pages[i].allocated = 0;
-        all_pages[i].kernel_reserved = 0;
-        print_memory(all_free_pages);
+    for(; i < number_of_pages; i++){
+        all_pages[i].flags.allocated = 0;
+        all_pages[i].vmapped_address = i * PAGE_SIZE;
         all_free_pages.append(&all_free_pages, &all_pages[i]);
     }
 }

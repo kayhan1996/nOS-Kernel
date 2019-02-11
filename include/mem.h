@@ -8,11 +8,15 @@
 
     uint64_t get_memory_size();
 
+    typedef struct page_flags{
+        uint8_t  allocated : 1;
+        uint8_t  kernel_page : 1;
+        uint64_t reserved    : 62;  //padding to make struct 64 bits 
+    } page_flags_t;
+
     typedef struct page{
-        uint64_t virtual_mapped_address;
-        uint64_t reserved : 62;
-        uint8_t allocated : 1;
-        uint8_t kernel_reserved : 1;
+        uint64_t vmapped_address;
+        page_flags_t flags;
         struct page *next_page;
         struct page *prev_page;
     } page_t;
