@@ -40,6 +40,29 @@ void init_memory(){
     }    
 }
 
+void* allocate_page(){
+    page_t *page;
+    void *page_mem;
+
+    if(all_free_pages.size == 0){
+        return NULL;
+    }
+
+    page = all_free_pages.pop(&all_free_pages);
+    page->flags.kernel_page = 1;
+    page->flags.allocated = 1;
+
+    page_mem = (void*)(page->vmapped_address);
+
+    //Alternative method of memory access, maybe faster?
+    //page_mem = (void*) ( (page - all_pages) * PAGE_SIZE);
+
+    bzero(page_mem, PAGE_SIZE);
+
+    return page_mem;
+
+}
+
 void traverse_list(){
     page_t *page = all_free_pages.head;
     println("Traversing through linked list");

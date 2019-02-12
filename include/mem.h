@@ -7,6 +7,7 @@
 
     void init_memory();
     void zero_memory(void *start_address, int bytes);
+    void* allocate_page();
     void traverse_list();
 
     uint64_t get_memory_size();
