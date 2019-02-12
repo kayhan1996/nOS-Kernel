@@ -14,17 +14,6 @@ extern uint64_t __bss_end;
 page_t *all_pages;
 page_list_t all_free_pages;
 
-void zero_memory(void *start_address, int bytes){
-    println("Zeroing Memory");
-    print("Start address: "); printhex(start_address); println("");
-    uint8_t *address = start_address;
-    while(bytes--){
-        *address++ = 0x0;
-    }
-    print("End address: "); printhex(address); println("");
-    println("Memory Zeroed\n");
-}
-
 void init_memory(){
     uint64_t memory_size = get_memory_size();                       //128MB
     uint64_t number_of_pages = (memory_size)/(PAGE_SIZE);           //32768 4KB pages 
@@ -38,13 +27,10 @@ void init_memory(){
 
     uint64_t kernel_pages = (uint64_t)(&__end + page_array_length)/(PAGE_SIZE);
 
-    print("Number of kernel pages: "); printhex(kernel_pages); println("");
     for(i = 0; i < kernel_pages; i++){
         all_pages[i].flags.allocated = 1;
         all_pages[i].flags.kernel_page = 1;
         all_pages[i].vmapped_address = i * PAGE_SIZE; //i * PAGE_SIZE;
-        all_pages[i].next_page = NULL;
-        all_pages[i].prev_page = NULL;
     }
     
     for(; i < number_of_pages; i++){
@@ -86,6 +72,13 @@ void traverse_list(){
 
 uint64_t get_memory_size(){
     return 1024 * 1024 * 128;
+}
+
+void zero_memory(void *start_address, int bytes){
+    uint8_t *address = start_address;
+    while(bytes--){
+        *address++ = 0x0;
+    }
 }
 
 void inline init_page_list(page_list_t *page_list){
