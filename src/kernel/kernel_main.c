@@ -4,6 +4,7 @@
 #include "mem.h"
 #include "asm.h"
 #include "debug.h"
+#include "mmu.h"
 
 #if defined(__cplusplus)
 extern "C" /* Use C linkage for kernel_main. */
@@ -11,6 +12,7 @@ extern "C" /* Use C linkage for kernel_main. */
 
 void kernel_main(unsigned long r0, unsigned long r1, unsigned long atags)
 {
+	init_mmu();
 	init_uart();
 	init_memory();
 

@@ -1,7 +1,7 @@
 COMPILER ?= aarch64-elf
 
-COPS = -g -nostdlib -nostartfiles -ffreestanding 
-ASMOPS = -g -nostdlib -nostartfiles -ffreestanding 
+COPS = -ggdb -nostdlib -nostartfiles -ffreestanding 
+ASMOPS = -ggdb -nostdlib -nostartfiles -ffreestanding 
 
 BUILD_DIR = ../build/objects
 BIN_DIR = ../bin
@@ -48,9 +48,9 @@ HEADER_FILES += $(wildcard $(HEADER_DIR))
 build: $(OBJ_FILES) $(HEADER_FILES)
 	@echo $(OBJ_FILES)
 	mkdir -p $(BIN_DIR)
-	$(COMPILER)-ld -T $(KERNEL_SRC_DIR)/linker.ld -o $(BIN_DIR)/kernel8.elf  $(OBJ_FILES)
+	$(COMPILER)-ld -g -T $(KERNEL_SRC_DIR)/linker.ld -o $(BIN_DIR)/kernel8.elf  $(OBJ_FILES)
 	$(COMPILER)-objcopy $(BIN_DIR)/kernel8.elf -O binary ../bin/kernel8.img
 	@echo 	"BUILD SUCCESS"
 
 run : build
-	qemu-system-aarch64 -m 128M -M raspi3 -serial stdio -kernel ../bin/kernel8.img
+	qemu-system-aarch64 -s -S -m 128M -M raspi3 -serial stdio -kernel ../bin/kernel8.img

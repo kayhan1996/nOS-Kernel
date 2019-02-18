@@ -14,6 +14,22 @@ extern uint64_t __bss_end;
 page_t *all_pages;
 page_list_t all_free_pages;
 
+void create_page_tables(){
+    uint64_t TTBR0_L1[512];
+    uint64_t TTBR0_L2[2048];
+
+    uint64_t TTBR1_L1[512];
+    uint64_t TTBR1_L2[512];
+    uint64_t TTBR1_L3[512];
+
+    TTBR0_L1[0] = &TTBR0_L2[0];
+    TTBR0_L1[1] = &TTBR0_L2[1024];
+    for(int i = 2; i < 512; i++){
+        TTBR0_L1[i] = 0;
+    }
+
+    
+}
 
 
 void init_memory(){
