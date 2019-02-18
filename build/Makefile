@@ -1,7 +1,7 @@
 COMPILER ?= aarch64-elf
 
-COPS = -nostdlib -nostartfiles -ffreestanding 
-ASMOPS = -nostdlib -nostartfiles -ffreestanding 
+COPS = -g -nostdlib -nostartfiles -ffreestanding 
+ASMOPS = -g -nostdlib -nostartfiles -ffreestanding 
 
 BUILD_DIR = ../build/objects
 BIN_DIR = ../bin
