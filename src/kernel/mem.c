@@ -14,6 +14,10 @@ extern uint64_t __bss_end;
 page_t *all_pages;
 page_list_t all_free_pages;
 
+void init_mmu(){
+    
+}
+
 void init_memory(){
     uint64_t memory_size = get_memory_size();                       //128MB
     uint64_t number_of_pages = (memory_size)/(PAGE_SIZE);           //32768 4KB pages 
@@ -57,7 +61,7 @@ void* allocate_page(){
     //Alternative method of memory access, maybe faster?
     //page_mem = (void*) ( (page - all_pages) * PAGE_SIZE);
 
-    bzero(page_mem, PAGE_SIZE);
+    zero_memory(page_mem, PAGE_SIZE);
 
     return page_mem;
 
