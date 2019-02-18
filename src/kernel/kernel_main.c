@@ -10,6 +10,15 @@
 extern "C" /* Use C linkage for kernel_main. */
 #endif
 
+void access_memory_register(){
+	uint64_t memory_register;
+	asm volatile("mrs x0, ID_AA64MMFR0_EL1\n\t"
+							 "mov %[memr], x0"
+							 : [memr] "=r" (memory_register));
+	print("Memory Register: ");
+	printhex(memory_register);
+}
+
 void kernel_main(unsigned long r0, unsigned long r1, unsigned long atags)
 {
 	init_mmu();
@@ -19,6 +28,8 @@ void kernel_main(unsigned long r0, unsigned long r1, unsigned long atags)
 	allocate_page();
 	allocate_page();
 	allocate_page();
+
+	access_memory_register();
 
 	println("Kernel Program Started");
 	char flag;

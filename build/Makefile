@@ -49,6 +49,9 @@ build: $(OBJ_FILES) $(HEADER_FILES)
 	@echo $(OBJ_FILES)
 	mkdir -p $(BIN_DIR)
 	$(COMPILER)-ld -g -T $(KERNEL_SRC_DIR)/linker.ld -o $(BIN_DIR)/kernel8.elf  $(OBJ_FILES)
+	#OPTIONAL, STRIPS KERNEL OF DEBUG SYMBOLS INTO SEPERATE FILE
+	#$(COMPILER)-objcopy --only-keep-debug $(BIN_DIR)/kernel8.elf kernel.sym
+	#$(COMPILER)-objcopy --strip-debug $(BIN_DIR)/kernel8.elf
 	$(COMPILER)-objcopy $(BIN_DIR)/kernel8.elf -O binary ../bin/kernel8.img
 	@echo 	"BUILD SUCCESS"
 
