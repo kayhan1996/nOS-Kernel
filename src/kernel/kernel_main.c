@@ -25,12 +25,6 @@ void kernel_main(unsigned long r0, unsigned long r1, unsigned long atags)
 	init_uart();
 	init_memory();
 
-	allocate_page();
-	allocate_page();
-	allocate_page();
-
-	access_memory_register();
-
 	println("Kernel Program Started");
 	char flag;
 	while (1) {

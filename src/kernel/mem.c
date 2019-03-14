@@ -2,6 +2,7 @@
 #include "mstdio.h"
 #include "debug.h"
 #include "uart.h"
+#include "mmu.h"
 
 extern uint64_t __end;
 extern uint64_t __start;

@@ -3,14 +3,14 @@
     // Hover to view descriptions of existing attributes.
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
-    "configurations": [
+    "configurations": [        
         {
             "type": "gdb",
             "request": "attach",
-            "name": "Attach to gdbserver",
-            "executable": "bin/kernel8.elf",
+            "name": "Run",
+            "executable": "build/kernel.sym",
             "target": "localhost:1234",
-            "gdbpath": "/home/kayhan/Development/gcc-arm-8.2-2019.01-x86_64-aarch64-elf/bin/aarch64-elf-gdb",
+            "gdbpath": "/home/kayhan/bin/gcc-arm-8.2-2019.01-x86_64-aarch64-elf/bin/aarch64-elf-gdb",
             "remote": true,
             "cwd": "${workspaceRoot}"
         }
