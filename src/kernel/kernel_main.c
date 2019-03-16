@@ -21,9 +21,11 @@ void access_memory_register(){
 
 void kernel_main(unsigned long r0, unsigned long r1, unsigned long atags)
 {
-	init_mmu();
+	
 	init_uart();
 	init_memory();
+	println("MMU Enabled");
+	init_mmu();
 
 	println("Kernel Program Started");
 	char flag;
