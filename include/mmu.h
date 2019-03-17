@@ -1,5 +1,7 @@
 #include "stdint.h"
 
+uint64_t virtualmap (uint32_t phys_addr);
+
 typedef enum type{
     Table = 3,
     Block = 1,
@@ -37,31 +39,37 @@ typedef enum ca{
     Write_Back_Non_Cacheable = 3
 } Cacheable;
 
-typedef struct __attribute__((__packed__)){
-    Type type: 2; 
-    uint64_t ignored: 10;
-    uint64_t address: 36;  
-    uint64_t reserved: 4;
-    uint64_t software_reserved: 7;
-    uint64_t PXN: 1;
-    uint64_t XN: 1;
-    Access_Permissions AP: 2;
-    uint64_t NS: 1;
+typedef union {
+    struct __attribute__((__packed__)){
+        Type type: 2; 
+        uint64_t ignored: 10;
+        uint64_t address: 36;  
+        uint64_t reserved: 4;
+        uint64_t software_reserved: 7;
+        uint64_t PXN: 1;
+        uint64_t XN: 1;
+        Access_Permissions AP: 2;
+        uint64_t NS: 1;
+    };
+    uint64_t data;
 } Table_Desciptor;
 
-typedef struct __attribute__((__packed__)){
-    Type type: 2;                           //[1:0]
-    Memory_Attributes memory_attributes: 4; //[5:2]
-    Access_Permissions AP: 2;               //[6:7]
-    Shareable SH: 2;                        //[9:8]
-    uint64_t AF: 1;                         //[10]
-    uint64_t reserved0: 1;                  //[11]
-    uint64_t address: 36;                   //[47:12]
-    uint64_t reserved1: 4;                  //[51:48]
-    uint64_t contiguous: 1;                 //[52]
-    uint64_t reserved3: 1;                  //[53]
-    uint64_t XN: 1;                         //[54]
-    uint64_t reserved4: 9;                  //[63:55]
+typedef union {
+    struct __attribute__((__packed__)){
+        Type type: 2;                           //[1:0]
+        Memory_Attributes memory_attributes: 4; //[5:2]
+        Access_Permissions AP: 2;               //[6:7]
+        Shareable SH: 2;                        //[9:8]
+        uint64_t AF: 1;                         //[10]
+        uint64_t reserved0: 1;                  //[11]
+        uint64_t address: 36;                   //[47:12]
+        uint64_t reserved1: 4;                  //[51:48]
+        uint64_t contiguous: 1;                 //[52]
+        uint64_t reserved3: 1;                  //[53]
+        uint64_t XN: 1;                         //[54]
+        uint64_t reserved4: 9;                  //[63:55]
+    };
+    uint64_t data;
 } Block_Descriptor;
 
 typedef struct __attribute__((__packed__)){

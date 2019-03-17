@@ -38,21 +38,21 @@ void create_TTBR0_tables(){
         T0_L2[base].memory_attributes = Normal_nC;
     }
 
-    // for(; base <= PERIPHERALS_MAX; base++){
-    //     T0_L2[base].type = Block;
-    //     T0_L2[base].address = base << LEVEL2_ADDRESS;
-    //     T0_L2[base].AF = 1;
-    //     T0_L2[base].memory_attributes = Device_nGnRE;
-    // }
-        //Mailbox at 1024MB to 1026MB
-        // T0_L2[512].type = Block;
-        // T0_L2[512].address = base << LEVEL2_ADDRESS;
-        // T0_L2[512].AF = 1;
-        // T0_L2[512].memory_attributes = Device_nGnRnE;
+    for(; base <= PERIPHERALS_MAX; base++){
+        T0_L2[base].type = Block;
+        T0_L2[base].address = base << LEVEL2_ADDRESS;
+        T0_L2[base].AF = 1;
+        T0_L2[base].memory_attributes = Device_nGnRE;
+    }
+        /* Mailbox at 1024MB to 1026MB */
+        T0_L2[512].type = Block;
+        T0_L2[512].address = base << LEVEL2_ADDRESS;
+        T0_L2[512].AF = 1;
+        T0_L2[512].memory_attributes = Device_nGnRnE;
 
     /* Set remaining entries to empty */
     for(512; base < 1024; base++){
-        T0_L2[base] = (Block_Descriptor){0};
+        T0_L2[base] = (Block_Descriptor) {0};
     }
 
     /* TTBR0_Level1 -> TTBR0_Level2 */
@@ -73,23 +73,23 @@ void create_TTBR1_tables(){
         T1_L3[i] = (Block_Descriptor){0};
     }
 
-    /* TTBR1_L2 -> TTBR1_L3 */
-    T1_L2[0].type = Table;
-    T1_L2[0].address = (uintptr_t)(&T1_L3[0]) >> 12;
-    T1_L2[0].NS = 1;
+    /* TTBR1_L1 -> TTBR1_L2 */
+    T1_L1[0].type = Table;
+    T1_L1[0].address = (uintptr_t)(&T1_L2[0]) >> 12;
+    T1_L1[0].NS = 1;
 
-    /* TTBR1_l1 -> TTBR1_L2 */
-    T1_L1[1].type = Table;
-    T1_L1[1].address = (uintptr_t)(&T1_L2[512]) >> 12;
-    T1_L1[1].NS = 1;
+    /* TTBR1_l2 -> TTBR1_L3 */
+    T1_L2[1].type = Table;
+    T1_L2[1].address = (uintptr_t)(&T1_L3[512]) >> 12;
+    T1_L2[1].NS = 1;
 }
 
 void init_mmu(){
     TCR_EL1 translation_control;
     SCTLR_EL1 system_control;
 
-    //create_TTBR0_tables();
-    //create_TTBR1_tables();
+    create_TTBR0_tables();
+    create_TTBR1_tables();
 
     /* Enable the MMU */
     /* http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.den0024a/CIHCHDIF.html */
@@ -125,4 +125,27 @@ void init_mmu(){
     system_control.enable_instruction_cache = 1;
     asm volatile("msr sctlr_el1, %0" :: "r" (system_control));
     asm volatile("isb");
+}
+
+uint64_t virtualmap (uint32_t phys_addr) {
+	uint64_t addr = 0;
+
+		// if (T0_L2[513].data == 0) {							// Find the first vacant stage3 table slot
+		// 	uint64_t offset;
+
+		// 	T0_L2[513] = (Block_Descriptor) { 
+        //         .address = (uintptr_t)phys_addr << (21 - 12),
+        //         .AF = 1,
+        //         .memory_attributes = Normal,
+        //         .type = Block 
+        //     };
+
+		// 	asm volatile ("dmb sy" ::: "memory");
+		// 	offset = ((512 - i) * 4096) - 1;
+		// 	addr = 0xFFFFFFFFFFFFFFFFul;
+		// 	addr = addr - offset;
+		// 	return(addr);
+		// }
+
+	return (addr);													// error
 }

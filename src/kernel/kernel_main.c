@@ -29,6 +29,15 @@ void kernel_main(unsigned long r0, unsigned long r1, unsigned long atags)
 	init_memory();
 	println("MMU Enabled");
 
+	int test = 0xdeadca7;
+
+	int *va = virtualmap(&test);
+
+	print("Physical Address: "); printhex(&test);
+	print("Virtual Address: "); printhex(va);
+	printhex(test);
+	printhex(*va);
+
 	asm volatile("mrs %0, sctlr_el1" : "=r"(system_control));
 
 	printhex(system_control);
