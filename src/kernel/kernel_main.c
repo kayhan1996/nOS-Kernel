@@ -27,6 +27,11 @@ void kernel_main(unsigned long r0, unsigned long r1, unsigned long atags)
 	println("MMU Enabled");
 	init_mmu();
 
+	int hadoop = 64;
+	asm volatile("mrs %0, CurrentEL" : "=r"(hadoop));
+	hadoop = hadoop >> 2;
+	printhex(hadoop);
+
 	println("Kernel Program Started");
 	char flag;
 	while (1) {
