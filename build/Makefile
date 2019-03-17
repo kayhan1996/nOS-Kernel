@@ -56,4 +56,4 @@ build: $(OBJ_FILES) $(HEADER_FILES)
 	@echo 	"BUILD SUCCESS"
 
 run : build
-	qemu-system-aarch64 -m 128M -M raspi3 -serial stdio -kernel ../bin/kernel8.img
+	qemu-system-aarch64 -s -S -m 128M -M raspi3 -serial stdio -kernel ../bin/kernel8.img

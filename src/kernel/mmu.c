@@ -1,156 +1,128 @@
 #include "mmu.h"
 
-static __attribute__((aligned(4096))) Block_Descriptor TTBR0_Level2[512*2];
-static __attribute__((aligned(4096))) Table_Descriptor TTBR0_Level1[512];
+#define BLOCK_SIZE          2
+#define PERIPHERALS         16
+#define VRAM                32
+#define RAM                 1024
 
-static __attribute__((aligned(4096))) Block_Descriptor TTBR1_Level3[512*2];
-static __attribute__((aligned(4096))) Table_Descriptor TTBR1_Level2[512];
-static __attribute__((aligned(4096))) Table_Descriptor TTBR1_Level1[512];
+#define PERIPHERALS_MAX     (RAM / BLOCK_SIZE)
+#define VRAM_MAX            (PERIPHERALS_MAX - (PERIPHERALS / BLOCK_SIZE))
+#define RAM_MAX             (VRAM_MAX - (VRAM / BLOCK_SIZE))
+
+#define LEVEL2_ADDRESS       (21-12)     //access bits [12:20] since 512 Entries
+
+static __attribute__((aligned(4096))) Block_Descriptor T0_L2[512];
+static __attribute__((aligned(4096))) Table_Desciptor  T0_L1[512];
+
+static __attribute__((aligned(4096))) Block_Descriptor T1_L3[512];
+static __attribute__((aligned(4096))) Table_Desciptor  T1_L2[512];
+static __attribute__((aligned(4096))) Table_Desciptor  T1_L1[512];
+
 
 void create_TTBR0_tables(){
+
+    /* TTBR0_Level2 -> 2MB BLocks of Physical Memory */
     int base = 0;
-
-    //First 880Mb dedicated t oRAM
-    for(base = 0; base < 440; base++){
-        TTBR0_Level2[base] = (Block_Descriptor) {
-            .Address = (uintptr_t)base << (21-12),
-            .AccessFlag = 1,
-            .SH = INNER_SHAREABLE,
-            .MemoryAttribute = NORMAL,
-            .EntryType = 1  //block table
-        };
+    for(; base < RAM_MAX; base++){
+        T0_L2[base].type = Block;
+        T0_L2[base].address = base << LEVEL2_ADDRESS;
+        T0_L2[base].AF = 1;
+        T0_L2[base].memory_attributes = Normal;
+        T0_L2[base].SH = Inner;
     }
 
-    //64MB dedicated to Video Ram
-    for(; base < 512 - 8; base++){
-        TTBR0_Level2[base] = (Block_Descriptor) {
-            .Address = (uintptr_t)base << (21-12),
-            .AccessFlag = 1,
-            .MemoryAttribute = NORMAL_NC,
-            .EntryType = 1  //block table
-        };
+    for(; base < VRAM_MAX; base++){
+        T0_L2[base].type = Block;
+        T0_L2[base].address = base << LEVEL2_ADDRESS;
+        T0_L2[base].AF = 1;
+        T0_L2[base].memory_attributes = Normal_nC;
     }
 
-    //16MB reserved memory for Peripherals
-    for(; base <= 512; base++){
-        TTBR0_Level2[base] = (Block_Descriptor) {
-            .Address = (uintptr_t)base << (21-12),
-            .AccessFlag = 1,
-            .MemoryAttribute = DEVICE_NGNRE,
-            .EntryType = 1  //block table
-        };
+    // for(; base <= PERIPHERALS_MAX; base++){
+    //     T0_L2[base].type = Block;
+    //     T0_L2[base].address = base << LEVEL2_ADDRESS;
+    //     T0_L2[base].AF = 1;
+    //     T0_L2[base].memory_attributes = Device_nGnRE;
+    // }
+        //Mailbox at 1024MB to 1026MB
+        // T0_L2[512].type = Block;
+        // T0_L2[512].address = base << LEVEL2_ADDRESS;
+        // T0_L2[512].AF = 1;
+        // T0_L2[512].memory_attributes = Device_nGnRnE;
+
+    /* Set remaining entries to empty */
+    for(512; base < 1024; base++){
+        T0_L2[base] = (Block_Descriptor){0};
     }
 
-    //2MB for mailbox
-    TTBR0_Level2[512] = (Block_Descriptor) {
-            .Address = (uintptr_t)base << (21-12),
-            .AccessFlag = 1,
-            .MemoryAttribute = DEVICE_NGNRNE,
-            .EntryType = 1  //block table
-    };
+    /* TTBR0_Level1 -> TTBR0_Level2 */
+    T0_L1[0].type = Table;
+    T0_L1[0].address = (uintptr_t)(&T0_L2[0]) >> 12;
+    T0_L1[0].NS = 1;
 
-    //Zero rest of data
-    for(base = 513; base <= 1024; base++){
-        TTBR0_Level2[base].RawData = 0;
-    }
-
-    TTBR0_Level1[0] = (Table_Descriptor) {
-        .NSTable = 1,
-        .Address = (uintptr_t)&TTBR0_Level2[0] >> 12,
-        .EntryType = 3
-    };
-
-    TTBR0_Level1[1] = (Table_Descriptor) {
-        .NSTable = 1,
-        .Address = (uintptr_t)&TTBR0_Level2[512] >> 12,
-        .EntryType = 3
-    };
+    T0_L1[1].type = Table;
+    T0_L1[1].address = (uintptr_t)(&T0_L2[512]) >> 12;
+    T0_L1[1].NS = 1;
+    
 }
 
 void create_TTBR1_tables(){
     for(int i = 0; i < 512; i++){
-        TTBR1_Level1[i].RawData = 0;
-        TTBR1_Level2[i].RawData = 0;
-        TTBR1_Level3[i].RawData = 0;
+        T1_L1[i] = (Table_Desciptor){0};
+        T1_L2[i] = (Table_Desciptor){0};
+        T1_L3[i] = (Block_Descriptor){0};
     }
 
-    TTBR1_Level1[511] = (Table_Descriptor) {
-        .NSTable = 1,
-        .Address = (uintptr_t)&TTBR1_Level2[0] >> 12,
-        .EntryType = 3
-    };
+    /* TTBR1_L2 -> TTBR1_L3 */
+    T1_L2[0].type = Table;
+    T1_L2[0].address = (uintptr_t)(&T1_L3[0]) >> 12;
+    T1_L2[0].NS = 1;
 
-    TTBR1_Level2[511] = (Table_Descriptor) {
-        .NSTable = 1,
-        .Address = (uintptr_t)&TTBR1_Level3[0] >> 12,
-        .EntryType = 3
-    };
+    /* TTBR1_l1 -> TTBR1_L2 */
+    T1_L1[1].type = Table;
+    T1_L1[1].address = (uintptr_t)(&T1_L2[512]) >> 12;
+    T1_L1[1].NS = 1;
 }
 
 void init_mmu(){
-    create_TTBR0_tables();
-    create_TTBR1_tables();
+    TCR_EL1 translation_control;
+    SCTLR_EL1 system_control;
 
-    uint64_t r;
+    //create_TTBR0_tables();
+    //create_TTBR1_tables();
 
-    asm volatile("dsb sy");
-    asm volatile("dsb sy");
-	r = ((0x00ul << (MT_DEVICE_NGNRNE * 8)) | \
-		 (0x04ul << (MT_DEVICE_NGNRE * 8)) | \
-		 (0x0cul << (MT_DEVICE_GRE * 8)) | \
-		 (0x44ul << (MT_NORMAL_NC * 8)) | \
-		 (0xfful << (MT_NORMAL * 8)));
-    asm volatile ("msr mair_el1, %0" : : "r" (r));
+    /* Enable the MMU */
+    /* http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.den0024a/CIHCHDIF.html */
 
-    // Bring both tables online and execute memory barrier
-	asm volatile ("msr ttbr0_el1, %0" : : "r" ((uintptr_t)&TTBR0_Level1[0]));
-	asm volatile ("msr ttbr1_el1, %0" : : "r" ((uintptr_t)&TTBR1_Level1[0]));
-	asm volatile("isb");
+    translation_control.T0SZ = T0SZ_512;
+    translation_control.T1SZ = T1SZ_512;
+    translation_control.EPD0 = 0;
+    translation_control.EPD1 = 0;
+    translation_control.IRGN0 = Write_Back_Cacheable;
+    translation_control.IRGN1 = Write_Back_Cacheable;
+    translation_control.ORGN0 = Write_Back_Cacheable;
+    translation_control.ORGN1 = Write_Back_Cacheable;
+    translation_control.SH0 = Inner;
+    translation_control.SH1 = Inner;
+    translation_control.TG0 = TG0_4;
+    translation_control.TG1 = TG1_4;
+    translation_control.TBI0 = 0;
+    translation_control.TBI1 = 0;
+    translation_control.IPS = IPS_32;
 
-    // Specify mapping characteristics in translate control register
-    r = (0b00LL << 37) | // TBI=0, no tagging
-        (0b000LL << 32)| // IPS= 32 bit ... 000 = 32bit, 001 = 36bit, 010 = 40bit
-        (0b10LL << 30) | // TG1=4k ... options are 10=4KB, 01=16KB, 11=64KB ... take care differs from TG0
-        (0b11LL << 28) | // SH1=3 inner ... options 00 = Non-shareable, 01 = INVALID, 10 = Outer Shareable, 11 = Inner Shareable
-        (0b01LL << 26) | // ORGN1=1 write back .. options 00 = Non-cacheable, 01 = Write back cacheable, 10 = Write thru cacheable, 11 = Write Back Non-cacheable
-        (0b01LL << 24) | // IRGN1=1 write back .. options 00 = Non-cacheable, 01 = Write back cacheable, 10 = Write thru cacheable, 11 = Write Back Non-cacheable
-        (0b0LL  << 23) | // EPD1 ... Translation table walk disable for translations using TTBR1_EL1  0 = walk, 1 = generate fault
-        (25LL   << 16) | // T1SZ=25 (512G) ... The region size is 2 POWER (64-T1SZ) bytes
-        (0b00LL << 14) | // TG0=4k  ... options are 00=4KB, 01=64KB, 10=16KB,  ... take care differs from TG1
-        (0b11LL << 12) | // SH0=3 inner ... .. options 00 = Non-shareable, 01 = INVALID, 10 = Outer Shareable, 11 = Inner Shareable
-        (0b01LL << 10) | // ORGN0=1 write back .. options 00 = Non-cacheable, 01 = Write back cacheable, 10 = Write thru cacheable, 11 = Write Back Non-cacheable
-        (0b01LL << 8)  | // IRGN0=1 write back .. options 00 = Non-cacheable, 01 = Write back cacheable, 10 = Write thru cacheable, 11 = Write Back Non-cacheable
-        (0b0LL  << 7)  | // EPD0  ... Translation table walk disable for translations using TTBR0_EL1  0 = walk, 1 = generate fault
-        (25LL   << 0);   // T0SZ=25 (512G)  ... The region size is 2 POWER (64-T0SZ) bytes
-    asm volatile ("msr tcr_el1, %0; isb" : : "r" (r));
-	
-	// finally, toggle some bits in system control register to enable page translation
-    asm volatile ("isb; mrs %0, sctlr_el1" : "=r" (r));
-    r |= 0xC00800;     // set mandatory reserved bits
-    r |= (1<<12) |     // I, Instruction cache enable. This is an enable bit for instruction caches at EL0 and EL1
-           (1<<4)  |   // SA0, tack Alignment Check Enable for EL0
-           (1<<3)  |   // SA, Stack Alignment Check Enable
-           (1<<2)  |   // C, Data cache enable. This is an enable bit for data caches at EL0 and EL1
-           (1<<1)  |   // A, Alignment check enable bit
-           (1<<0);     // set M, enable MMU
-    asm volatile ("msr sctlr_el1, %0; isb" : : "r" (r));
+    asm volatile("msr ttbr0_el1, %0" :: "r" (&T0_L1));
+    asm volatile("msr ttbr1_el1, %0" :: "r" (&T1_L1));
+    asm volatile("msr tcr_el1, %0" :: "r" (translation_control));
+    asm volatile("isb");
 
-
-}
-
-uint64_t virtualmap (uint32_t phys_addr, uint8_t memattrs) {
-	uint64_t addr = 0;
-	for (int i = 0; i < 512; i++)
-	{
-		if (TTBR1_Level3[i].RawData == 0) {							// Find the first vacant stage3 table slot
-			uint64_t offset;
-			TTBR1_Level3[i] = (Block_Descriptor) { .Address = (uintptr_t)phys_addr << (21 - 12), .AccessFlag = 1, .MemoryAttribute = memattrs, .EntryType = 3 };
-			asm volatile ("dmb sy" ::: "memory");
-			offset = ((512 - i) * 4096) - 1;
-			addr = 0xFFFFFFFFFFFFFFFFul;
-			addr = addr - offset;
-			return(addr);
-		}
-	}
-	return (addr);													// error
+    asm volatile("mrs %0, sctlr_el1" : "=r"(system_control));
+    system_control.MandatoryReserved1Bits |= 0xC00800;
+    system_control.enable_MMU = 1;
+    system_control.enable_alignment_fault_check = 1;
+    system_control.enable_stack_alignment_check = 1;
+    system_control.enable_stack_el0_alignment_check = 1;
+    system_control.enable_data_cache = 1;
+    system_control.enable_instruction_cache = 1;
+    asm volatile("msr sctlr_el1, %0" :: "r" (system_control));
+    asm volatile("isb");
 }

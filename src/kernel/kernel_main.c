@@ -22,11 +22,17 @@ void access_memory_register(){
 void kernel_main(unsigned long r0, unsigned long r1, unsigned long atags)
 {
 	
+	uint64_t system_control;
+	
+	init_mmu();
 	init_uart();
 	init_memory();
 	println("MMU Enabled");
-	init_mmu();
 
+	asm volatile("mrs %0, sctlr_el1" : "=r"(system_control));
+
+	printhex(system_control);
+	
 	println("Kernel Program Started");
 	char flag;
 	while (1) {
