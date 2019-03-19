@@ -28,7 +28,7 @@ void create_TTBR0_tables(){
         T0_L2[base].address = base << LEVEL2_ADDRESS;
         T0_L2[base].AF = 1;
         T0_L2[base].memory_attributes = Normal;
-        T0_L2[base].SH = Inner;
+        T0_L2[base].SH = Inner;        
     }
 
     for(; base < VRAM_MAX; base++){
@@ -50,9 +50,21 @@ void create_TTBR0_tables(){
         T0_L2[512].AF = 1;
         T0_L2[512].memory_attributes = Device_nGnRnE;
 
+
+
     /* Set remaining entries to empty */
-    for(512; base < 1024; base++){
-        T0_L2[base] = (Block_Descriptor) {0};
+    //To test MMU is working, move all entries above 1026 to point to 0x0000
+    for(; base < 1024; base++){
+        if(base > 512){
+            T0_L2[base] = (Block_Descriptor) {
+                .type = Block,
+                .address = 0 << LEVEL2_ADDRESS,
+                .AF = 1,
+                .memory_attributes = Normal,
+                .SH = Inner
+            };
+        }
+        //T0_L2[base] = (Block_Descriptor) {0};
     }
 
     /* TTBR0_Level1 -> TTBR0_Level2 */
@@ -73,15 +85,27 @@ void create_TTBR1_tables(){
         T1_L3[i] = (Block_Descriptor){0};
     }
 
+    //temp: point all tables at the high address to point to 0x0
+    for(int base = 0; base < 512; base++){
+        T1_L3[base] = (Block_Descriptor) {
+            .type = Block,
+            .address = 0 << LEVEL2_ADDRESS,
+            .AF = 1,
+            .memory_attributes = Normal,
+            .SH = Inner
+        };
+        //T0_L2[base] = (Block_Descriptor) {0};
+    }
+
     /* TTBR1_L1 -> TTBR1_L2 */
-    T1_L1[0].type = Table;
-    T1_L1[0].address = (uintptr_t)(&T1_L2[0]) >> 12;
-    T1_L1[0].NS = 1;
+    T1_L1[511].type = Table;
+    T1_L1[511].address = (uintptr_t)(&T1_L2[0]) >> 12;
+    T1_L1[511].NS = 1;
 
     /* TTBR1_l2 -> TTBR1_L3 */
-    T1_L2[1].type = Table;
-    T1_L2[1].address = (uintptr_t)(&T1_L3[512]) >> 12;
-    T1_L2[1].NS = 1;
+    T1_L2[511].type = Table;
+    T1_L2[511].address = (uintptr_t)(&T1_L3[512]) >> 12;
+    T1_L2[511].NS = 1;
 }
 
 void init_mmu(){
@@ -90,6 +114,14 @@ void init_mmu(){
 
     create_TTBR0_tables();
     create_TTBR1_tables();
+
+    asm volatile("dsb sy");
+	int r = ((0x00ul << (0 * 8)) | \
+		 (0x04ul << (1 * 8)) | \
+		 (0x0cul << (2 * 8)) | \
+		 (0x44ul << (3 * 8)) | \
+		 (0xfful << (4 * 8)));
+    asm volatile ("msr mair_el1, %0" : : "r" (r));
 
     /* Enable the MMU */
     /* http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.den0024a/CIHCHDIF.html */
@@ -127,25 +159,19 @@ void init_mmu(){
     asm volatile("isb");
 }
 
-uint64_t virtualmap (uint32_t phys_addr) {
+uint64_t virtualmap (uint32_t phys_addr, uint8_t memattrs) {
 	uint64_t addr = 0;
-
-		// if (T0_L2[513].data == 0) {							// Find the first vacant stage3 table slot
-		// 	uint64_t offset;
-
-		// 	T0_L2[513] = (Block_Descriptor) { 
-        //         .address = (uintptr_t)phys_addr << (21 - 12),
-        //         .AF = 1,
-        //         .memory_attributes = Normal,
-        //         .type = Block 
-        //     };
-
-		// 	asm volatile ("dmb sy" ::: "memory");
-		// 	offset = ((512 - i) * 4096) - 1;
-		// 	addr = 0xFFFFFFFFFFFFFFFFul;
-		// 	addr = addr - offset;
-		// 	return(addr);
-		// }
-
+	for (int i = 0; i < 512; i++)
+	{
+		if (T1_L3[i].data == 0) {							// Find the first vacant stage3 table slot
+			uint64_t offset;
+			T1_L3[i] = (Block_Descriptor) { .address = (uintptr_t)phys_addr << (21 - 12), .AF = 1, .memory_attributes = memattrs, .type = 3 };
+			asm volatile ("dmb sy" ::: "memory");
+			offset = ((512 - i) * 4096) - 1;
+			addr = 0xFFFFFFFFFFFFFFFFul;
+			addr = addr - offset;
+			return(addr);
+		}
+	}
 	return (addr);													// error
 }
