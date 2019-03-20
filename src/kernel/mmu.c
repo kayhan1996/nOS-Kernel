@@ -78,42 +78,11 @@ void create_TTBR0_tables(){
     
 }
 
-void create_TTBR1_tables(){
-    for(int i = 0; i < 512; i++){
-        T1_L1[i] = (Table_Desciptor){0};
-        T1_L2[i] = (Table_Desciptor){0};
-        T1_L3[i] = (Block_Descriptor){0};
-    }
-
-    //temp: point all tables at the high address to point to 0x0
-    for(int base = 0; base < 512; base++){
-        T1_L3[base] = (Block_Descriptor) {
-            .type = Block,
-            .address = 0 << LEVEL2_ADDRESS,
-            .AF = 1,
-            .memory_attributes = Normal,
-            .SH = Inner
-        };
-        //T0_L2[base] = (Block_Descriptor) {0};
-    }
-
-    /* TTBR1_L1 -> TTBR1_L2 */
-    T1_L1[511].type = Table;
-    T1_L1[511].address = (uintptr_t)(&T1_L2[0]) >> 12;
-    T1_L1[511].NS = 1;
-
-    /* TTBR1_l2 -> TTBR1_L3 */
-    T1_L2[511].type = Table;
-    T1_L2[511].address = (uintptr_t)(&T1_L3[512]) >> 12;
-    T1_L2[511].NS = 1;
-}
-
 void init_mmu(){
     TCR_EL1 translation_control;
     SCTLR_EL1 system_control;
 
     create_TTBR0_tables();
-    create_TTBR1_tables();
 
     asm volatile("dsb sy");
 	int r = ((0x00ul << (0 * 8)) | \
@@ -143,7 +112,7 @@ void init_mmu(){
     translation_control.IPS = IPS_32;
 
     asm volatile("msr ttbr0_el1, %0" :: "r" (&T0_L1));
-    asm volatile("msr ttbr1_el1, %0" :: "r" (&T1_L1));
+    asm volatile("msr ttbr1_el1, %0" :: "r" (&T0_L1));
     asm volatile("msr tcr_el1, %0" :: "r" (translation_control));
     asm volatile("isb");
 
@@ -157,21 +126,4 @@ void init_mmu(){
     system_control.enable_instruction_cache = 1;
     asm volatile("msr sctlr_el1, %0" :: "r" (system_control));
     asm volatile("isb");
-}
-
-uint64_t virtualmap (uint32_t phys_addr, uint8_t memattrs) {
-	uint64_t addr = 0;
-	for (int i = 0; i < 512; i++)
-	{
-		if (T1_L3[i].data == 0) {							// Find the first vacant stage3 table slot
-			uint64_t offset;
-			T1_L3[i] = (Block_Descriptor) { .address = (uintptr_t)phys_addr << (21 - 12), .AF = 1, .memory_attributes = memattrs, .type = 3 };
-			asm volatile ("dmb sy" ::: "memory");
-			offset = ((512 - i) * 4096) - 1;
-			addr = 0xFFFFFFFFFFFFFFFFul;
-			addr = addr - offset;
-			return(addr);
-		}
-	}
-	return (addr);													// error
 }
