@@ -1,6 +1,6 @@
 #include "stdint.h"
 
-uint64_t virtualmap (uint32_t phys_addr, uint8_t memattrs);
+uint64_t* map_physical_to_virtual(uintptr_t address);
 
 typedef enum type{
     Table = 3,

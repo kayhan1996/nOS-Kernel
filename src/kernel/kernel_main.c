@@ -28,11 +28,16 @@ void kernel_main(unsigned long r0, unsigned long r1, unsigned long atags)
 	init_uart();
 	init_memory();
 	println("MMU Enabled");
-	
-	asm volatile("mrs %0, sctlr_el1" : "=r"(system_control));
+	uint64_t *va = map_physical_to_virtual(0);
 
-	printhex(system_control);
+	// uint64_t t = 0xdeadca7;
+	// uint64_t *hadoop = 0xFFFFFF8000000000 | (uint64_t)&t;
+	// printhex(*hadoop);
 	
+	uint64_t t = 0xdeadca7;
+	uint64_t *hadoop = 0xFFFFFF8000000000; //| (uint64_t)&t;
+	printhex(*hadoop);
+
 	println("Kernel Program Started");
 	char flag;
 	while (1) {
