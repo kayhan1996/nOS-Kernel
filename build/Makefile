@@ -4,7 +4,7 @@ COPS = -ggdb -nostdlib -nostartfiles -ffreestanding
 ASMOPS = -ggdb -nostdlib -nostartfiles -ffreestanding 
 
 BUILD_DIR = ../build/objects
-BIN_DIR = ../bin
+BIN_DIR = ../build/bin
 KERNEL_SRC_DIR = ../src/kernel
 COMMON_SRC_DIR = ../src/common
 OBJ_DIR = objects
@@ -52,8 +52,8 @@ build: $(OBJ_FILES) $(HEADER_FILES)
 	#OPTIONAL, STRIPS KERNEL OF DEBUG SYMBOLS INTO SEPERATE FILE
 	$(COMPILER)-objcopy --only-keep-debug $(BIN_DIR)/kernel8.elf kernel.sym
 	$(COMPILER)-objcopy --strip-debug $(BIN_DIR)/kernel8.elf
-	$(COMPILER)-objcopy $(BIN_DIR)/kernel8.elf -O binary ../bin/kernel8.img
+	$(COMPILER)-objcopy $(BIN_DIR)/kernel8.elf -O binary ../build/kernel8.img
 	@echo 	"BUILD SUCCESS"
 
 run : build
-	qemu-system-aarch64 -s -S -m 1G -M raspi3 -serial stdio -kernel ../bin/kernel8.img -d mmu -d int
+	qemu-system-aarch64 -s -S -m 1G -M raspi3 -serial stdio -kernel ../build/kernel8.img -d mmu -d int
