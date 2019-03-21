@@ -88,7 +88,7 @@ void create_TTBR1_tables(){
     }
 
     for(base = 0; base < 512; base++){
-        T1_L3[base].type = Table;
+        T1_L3[base].type = Page;
         T1_L3[base].address = base;
         T1_L3[base].AF = 1;
         T1_L3[base].memory_attributes = Normal;

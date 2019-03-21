@@ -4,6 +4,7 @@ uint64_t* map_physical_to_virtual(uintptr_t address);
 
 typedef enum type{
     Table = 3,
+    Page = 3,
     Block = 1,
     Invalid_Block = 0
 } Type;
