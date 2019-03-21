@@ -87,25 +87,21 @@ void create_TTBR1_tables(){
         T1_L1[base] = (Table_Desciptor){0};
     }
 
-    for(int i = 0; i < 512; i++){
-        T1_L3[base].type = Block;
-        T1_L3[base].address = base << Block_Shift_2MB;
+    for(base = 0; base < 512; base++){
+        T1_L3[base].type = Table;
+        T1_L3[base].address = base;
         T1_L3[base].AF = 1;
         T1_L3[base].memory_attributes = Normal;
         T1_L3[base].SH = Inner;
     }
 
-    for(int i = 0; i < 512; i++){
-        T1_L2[i].type = Table;
-        T1_L2[i].address = (uintptr_t)(T1_L3) >> Table_Shift_4kB;
-        T1_L2[i].NS = 1;
-    }
+    T1_L2[0].type = Table;
+    T1_L2[0].address = (uintptr_t)(T1_L3) >> Table_Shift_4kB;
+    T1_L2[0].NS = 1;
 
-    for(int i = 0; i < 512; i++){
-        T1_L1[i].type = Table;
-        T1_L1[i].address = (uintptr_t)(T1_L2) >> Table_Shift_4kB;
-        T1_L1[i].NS = 1;    
-    }
+    T1_L1[0].type = Table;
+    T1_L1[0].address = (uintptr_t)(T1_L2) >> Table_Shift_4kB;
+    T1_L1[0].NS = 1;    
 }
 
 void init_mmu(){
@@ -143,7 +139,7 @@ void init_mmu(){
     translation_control.IPS = IPS_32;
 
     asm volatile("msr ttbr0_el1, %0" :: "r" (&T0_L1));
-    asm volatile("msr ttbr1_el1, %0" :: "r" (&T1_L2));
+    asm volatile("msr ttbr1_el1, %0" :: "r" (&T1_L1));
     asm volatile("msr tcr_el1, %0" :: "r" (translation_control));
     asm volatile("isb");
 
@@ -164,7 +160,7 @@ uint64_t* map_physical_to_virtual(uintptr_t address){
     int i = 0;
     for(; i < 512; i++){
         if(T1_L3[i].data == 0){
-            T1_L3[i].type = Block;
+            T1_L3[i].type = 3;
             T1_L3[i].address = address << Block_Shift_4kB;
             T1_L3[i].AF = 1;
             T1_L3[i].memory_attributes = Normal;
