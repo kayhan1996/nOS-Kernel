@@ -5,6 +5,7 @@ void uart_putc(unsigned char c);
 void init_uart();
 unsigned char uart_getc();
 void uart_puts(const char* str);
+void putc(void* p, char c);
 
 enum
 {

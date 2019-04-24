@@ -63,3 +63,7 @@ void init_uart()
 
 	println("UART initiated");
 }
+
+void putc(void* p, char c){
+	uart_putc(c);
+}
