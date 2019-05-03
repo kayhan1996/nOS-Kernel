@@ -10,13 +10,15 @@ hang:
     b hang
 
 1:
+    
     adr x0, __bss_start //Defined in linker.ld
     adr x1, __bss_end   //Defined in linker.ld
     sub x1, x1, x0
-    bl  memzero
+
+    bl  memzero    
 
     ldr x1, =__start
-
+    
     msr     sp_el1, x1
     // enable CNTP for EL1
     mrs     x0, cnthctl_el2
@@ -43,17 +45,16 @@ hang:
     msr     spsr_el2, x2
     adr     x2, 5f
     msr     elr_el2, x2
+    
     eret
 5:
     mov sp, x1
-
     bl  kernel_main     //jump to main function
     b   hang            //main should never return
 
 
 memzero:
-    str wzr, [x0], #8   //zero out address at x0, then increment x0 by 8 bytes
-    b.gt memzero
-    ret
-    
-
+	str xzr, [x0], #8
+	subs x1, x1, #8
+	b.gt memzero
+	ret

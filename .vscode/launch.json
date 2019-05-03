@@ -5,12 +5,13 @@
     "version": "0.2.0",
     "configurations": [        
 
+
         {
             "type": "gdb",
             "request": "attach",
             "name": "Attach to gdbserver",
             "executable": "./build/kernel.sym",
-            "gdbpath": "aarch64-none-elf-gdb",
+            "gdbpath": "aarch64-elf-gdb",
             "target": "localhost:1234",
             "remote": true,
             "cwd": "${workspaceRoot}",

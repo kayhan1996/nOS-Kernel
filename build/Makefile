@@ -1,4 +1,4 @@
-COMPILER ?= aarch64-none-elf
+COMPILER ?= aarch64-elf
 
 COPS = -ggdb -nostdlib -nostartfiles -ffreestanding 
 ASMOPS = -ggdb -nostdlib -nostartfiles -ffreestanding 
@@ -33,7 +33,7 @@ $(BUILD_DIR)/%.o: $(COMMON_SRC_DIR)/%.c
 $(BUILD_DIR)/%.o: $(KERNEL_SRC_DIR)/%.S
 	@echo	"START: Creating object files from *.S files"
 	mkdir -p $(@D)
-	$(COMPILER)-gcc $(ASMOPS) -c $< -o $@
+	$(COMPILER)-gcc $(ASMOPS) -I$(HEADER_DIR) -c $< -o $@
 
 C_FILES = $(wildcard $(KERNEL_SRC_DIR)/*.c)
 COMMON_C_FILES = $(wildcard $(COMMON_SRC_DIR)/*.c)
