@@ -1,9 +1,10 @@
-#include "uart.h"
+
 #include "mmu.h"
 #include "mm.h"
 #include "printx.h"
 #include "asm.h"
 #include "LED.h"
+#include "mini_uart.h"
 
 #if defined(__cplusplus)
 extern "C" /* Use C linkage for kernel_main. */
@@ -11,13 +12,16 @@ extern "C" /* Use C linkage for kernel_main. */
 
 void kernel_main(unsigned long r0, unsigned long r1, unsigned long atags)
 {
-	init_uart();
-	init_printf(0, putc);
-	//init_mmu();
-	//init_memory_manager();
-	printf("Hello World!");
-	int x = 300000;
+
+	init_mini_uart();
 	act_led(On);
+	mu_send('H');
+	mu_send('E');
+	mu_send('L');
+	mu_send('L');
+	mu_send('O');
+	act_led(Off);
+	
 	
 	
 }

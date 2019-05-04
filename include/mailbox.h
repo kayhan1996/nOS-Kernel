@@ -19,6 +19,8 @@ extern volatile unsigned int mailbox[36];
 #define MBOX_TAG_GETSERIAL      0x10004
 #define MBOX_TAG_LAST           0
 
+#include "stdint.h"
+
 typedef struct message{
     volatile uint32_t  mailbox[36];
     uint8_t channel;
