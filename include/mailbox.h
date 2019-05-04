@@ -19,5 +19,11 @@ extern volatile unsigned int mailbox[36];
 #define MBOX_TAG_GETSERIAL      0x10004
 #define MBOX_TAG_LAST           0
 
-int callMailBox(unsigned char ch);
+typedef struct message{
+    volatile uint32_t  mailbox[36];
+    uint8_t channel;
+} __attribute__((aligned(16))) Message;
+
+int call_mailbox(Message *message);
+
 #endif
