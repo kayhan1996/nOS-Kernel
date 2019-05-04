@@ -22,7 +22,7 @@ extern volatile unsigned int mailbox[36];
 #include "stdint.h"
 
 typedef struct message{
-    volatile uint32_t  mailbox[36];
+    uint32_t mail[36];
     uint8_t channel;
 } __attribute__((aligned(16))) Message;
 

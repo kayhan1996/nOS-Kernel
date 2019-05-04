@@ -4,6 +4,7 @@
 #include "printx.h"
 #include "asm.h"
 #include "LED.h"
+#include "uart.h"
 #include "mini_uart.h"
 
 #if defined(__cplusplus)
@@ -14,14 +15,16 @@ void kernel_main(unsigned long r0, unsigned long r1, unsigned long atags)
 {
 
 	init_mini_uart();
-	act_led(On);
+	
 	mu_send('H');
 	mu_send('E');
 	mu_send('L');
 	mu_send('L');
 	mu_send('O');
-	act_led(Off);
-	
-	
-	
+
+	init_uart();
+	send('U');
+	send('R');
+	send('T');
+	act_led(On);
 }

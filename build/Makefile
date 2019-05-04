@@ -15,6 +15,7 @@ all : build
 clean :
 	rm -rf $(BUILD_DIR)
 	rm -rf $(BIN_DIR)/*
+	rm ../build/kernel*
 
 #DIFFERENTIAL BUILDS FOR OBJECT FILES
 
