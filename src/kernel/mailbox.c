@@ -1,36 +1,30 @@
 #include "mailbox.h"
-#include "stdint.h"
 
-#include "mini_uart.h"
+#define MAILBOX_BASE        0x3F00B880
+#define STATUS              ((volatile uint32_t*)(MAILBOX_BASE+0x18))
+#define READ                ((volatile uint32_t*)(MAILBOX_BASE+0x00))
+#define WRITE               ((volatile uint32_t*)(MAILBOX_BASE+0x20))
 
-#define MAILBOX_BASE            0x3f00b880
-#define STATUS                  (MAILBOX_BASE+0x18)
-#define READ                    (MAILBOX_BASE+0x00)
-#define WRITE                   (MAILBOX_BASE+0x20)
-#define FULL                    0x80000000
-#define EMPTY                   0x40000000
-#define RESPONSE                0x80000000
+#define FULL                0x80000000
+#define EMPTY               0x40000000
+#define RESPONSE            0x80000000
 
+call_mailbox(uint32_t* message, uint8_t channel){
 
+    //prepare message for channel
+    uint32_t address = (uint32_t)message;
+    address &= ~(0xF);
+    address |= (channel & 0xF);
 
-int call_mailbox(Message *message){
-    volatile uint32_t *status = (volatile uint32_t*)STATUS;
-    volatile uint32_t *write = (volatile uint32_t*)WRITE;
-    volatile uint32_t *read = (volatile uint32_t*)READ;
-    //format message
-    uint32_t message_address = (uint32_t)(&(message->mail));
-    message_address |= (message->channel & 0xF);    //add channel to message
-    //end format
+    //check mailbox status
+    while(*STATUS & FULL){asm("");}
 
-    //check if mailbox is full
-    while(*status & FULL){asm("nop");}
+    *WRITE = address;
 
-    *write = message_address;
-
-    while(1){
-        while(*status & EMPTY){asm("nop");}
-        if(*read == message_address){
-            return message->mail[1] == RESPONSE;
+    while(1) {
+        while(*STATUS & EMPTY){asm("");}
+        if(address = *READ){
+            return message[1] == RESPONSE;
         }
     }
 }

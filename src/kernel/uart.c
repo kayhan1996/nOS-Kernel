@@ -2,84 +2,78 @@
 #include "stdint.h"
 #include "mailbox.h"
 #include "asm.h"
+#include "GPIO.h"
 
-#include "mini_uart.h"
+#define UART0_BASE		0x3f201000
+#define RX_EMPTY		(1 << 4)
+#define TX_FULL			(1 << 5)
 
-#define BASE	0x3f201000
-#define IO_BASE             0x3f000000
-#define GPFSEL1             ((volatile uint32_t*)(IO_BASE+0x00200004))
-#define GPPUD               ((volatile uint32_t*)(IO_BASE+0x00200094))
-#define GPPUDCLK0           ((volatile uint32_t*)(IO_BASE+0x00200098))
-#define TX_FULL				(1 << 5)
-#define RX_EMPTY			(1 << 4)
+#define GPFSEL1			 ((volatile uint32_t*)0x3f200004)
+#define GPPUD			 ((volatile uint32_t*)0x3f200094)
+#define GPPUDCLK0    	 ((volatile uint32_t*)0x3f200098)
 
-struct UART_PL011 {
-	volatile uint32_t data;
-	volatile uint32_t RSRECR;
-	uint32_t _res0[4];
-	volatile uint32_t flag;
-	uint32_t _res1;
-	volatile uint32_t IBRD;
-	volatile uint32_t FBRD;
-	volatile uint32_t LCRH;
-	volatile uint32_t CR;
-	volatile uint32_t IFLS;
-	volatile uint32_t IMSC;
-	volatile uint32_t RIS;
-	volatile uint32_t MIS;
-	volatile uint32_t ICR;
-} __attribute__((__packed__));
 
-#define	PL011	((struct UART_PL011 *) BASE)
+struct UART0{				//offset
+	volatile uint32_t DATA;	//0x00
+	uint32_t	  _res0[5];	//0x04, 0x08, 0x0c, 0x10, 0x14
+	volatile uint32_t FLAG; //0x18
+	uint32_t	  _res1[2];	//0x1c, 0x20
+	volatile uint32_t IBRD;	//0x24
+	volatile uint32_t FBRD; //0x28
+	volatile uint32_t LCRH;	//0x2c
+	volatile uint32_t CR;   //0x30
+	volatile uint32_t IFLS; //0x34
+	volatile uint32_t IMSC; //0x38
+	volatile uint32_t RIS;	//0x3c
+	volatile uint32_t MIS;  //0x40
+	volatile uint32_t ICR;  //0X44
+};
 
-void init_uart()
-{
+#define PL011	((struct UART0*) UART0_BASE)
+
+
+
+void init_uart(){
 	PL011->CR = 0;
 
-	Message message;
-	message.mail[0] = 9*4;		//message size
-	message.mail[1] = 0; 		//request
-	message.mail[2] = 12; 		//buffer size
-	message.mail[3] = 8; 		//data size
-	message.mail[4] = 2;		//device id for uart clock
-	message.mail[5] = 4000000; 	//clock value = 4Mhz
-	message.mail[6] = 0;		//end tag
-	message.channel = 8;
-	call_mailbox(&message);
+	uint32_t message[16];
+	message[0] = 8*4;
+    message[1] = 0;
+    message[2] = 0x38002; // set clock rate
+    message[3] = 12;
+    message[4] = 8;
+    message[5] = 2;           // UART clock
+    message[6] = 4000000;     // 4Mhz
+    message[7] = 0;           // end tag
+    call_mailbox(message, 8);
 
-	//reassign pins to UART0
-	uint32_t pins = *GPFSEL1;
-    pins &= ~(7 << 12); //disable pin 14
-    pins &= ~(7 << 15); //disable pin 15
-    pins |= (4 << 12);  //enable alternative function pin 14
-    pins |= (4 << 15);
-    *GPFSEL1 = pins;
-    *GPPUD = 0;
+	register uint32_t address;
+	address = GP->FSEL1;
+    address &= ~((7<<12)|(7<<15));	//set pins
+    address |=(4<<12)|(4<<15);		//alt0 mode
+    GP->FSEL1 = address;
+    GP->PUD = 0;            
     delay(150);
-    *GPPUDCLK0 = (1 << 14) | (1 << 15);
+    GP->PUDCLK0 = (1<<14)|(1<<15);
     delay(150);
-    *GPPUDCLK0 = 0;
+    GP->PUDCLK0 = 0;        
 
-	PL011->ICR = 0x7FE;		//clear all interrupts
-	PL011->IBRD = 2;		//115200 baud for 4Mhz clock
+	PL011->ICR = 0x7FF;
+	PL011->IBRD = 2;
 	PL011->FBRD = 0xB;
-	PL011->LCRH = (1 << 5) | (1 << 6);	//8 bit characters
-	PL011->CR = (1 << 0) | (1 << 8) | (1 << 9); // UARTEN | TXE | RXE
+	PL011->LCRH = (1 << 5) | (1 << 6);	//8 bits
+	PL011->CR = (1 << 0) | (1 << 8) | (1 << 9); //UARTEN | TXE | RXE
 }
 
-void send(char c)
-{
-	while (PL011->flag & TX_FULL) {asm("nop");}
-	PL011->data = c;
+void send(char c){
+	while (PL011->FLAG & TX_FULL) {asm("nop");}
+	PL011->DATA = c;
 }
 
-char receive()
-{
-    while (PL011->flag & RX_EMPTY) {asm("nop");}
-    return PL011->data;
+char receive(){
+    while (PL011->FLAG & RX_EMPTY) {asm("nop");}
+    return PL011->DATA;
 }
-
-
 
 void putc(void* p, char c){
 	send(c);

@@ -13,18 +13,7 @@ extern "C" /* Use C linkage for kernel_main. */
 
 void kernel_main(unsigned long r0, unsigned long r1, unsigned long atags)
 {
-
-	init_mini_uart();
-	
-	mu_send('H');
-	mu_send('E');
-	mu_send('L');
-	mu_send('L');
-	mu_send('O');
-
-	init_uart();
-	send('U');
-	send('R');
-	send('T');
-	act_led(On);
+	while(1){
+		send(receive());
+	}
 }
