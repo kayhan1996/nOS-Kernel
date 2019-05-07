@@ -9,7 +9,7 @@
 #define EMPTY               0x40000000
 #define RESPONSE            0x80000000
 
-call_mailbox(uint32_t* message, uint8_t channel){
+int call_mailbox(uint32_t* message, uint8_t channel){
 
     //prepare message for channel
     uint32_t address = (uint32_t)message;

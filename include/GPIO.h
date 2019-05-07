@@ -13,7 +13,7 @@ struct GPIO_REG
     volatile uint32_t FSEL5;    //0x14
     uint32_t          _res0;    //0x18
     volatile uint32_t  SET0;    //0x1c
-    volatile uint32_t  SET1;    //0x20
+    volatile uint32_t  SET1;    //0x20 
     uint32_t          _res1;    //0x24
     volatile uint32_t  CLR0;    //0x28
     uint32_t       _res2[2];    //0x2c, 0x30
