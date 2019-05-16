@@ -52,7 +52,7 @@ build: $(OBJ_FILES) $(HEADER_FILES)
 	$(COMPILER)-ld -g -T $(KERNEL_SRC_DIR)/linker.ld -o $(BIN_DIR)/kernel8.elf  $(OBJ_FILES)
 
 	#CREATE OBJECT DUMP OF KERNEL IMAGE
-	objdump -S --disassemble $(BIN_DIR)/kernel8.elf > kernel8.dump
+	$(COMPILER)-objdump -S --disassemble $(BIN_DIR)/kernel8.elf > kernel8.dump
 	#OPTIONAL, STRIPS KERNEL OF DEBUG SYMBOLS INTO SEPERATE FILE
 	$(COMPILER)-objcopy --only-keep-debug $(BIN_DIR)/kernel8.elf kernel.sym
 	$(COMPILER)-objcopy --strip-debug $(BIN_DIR)/kernel8.elf

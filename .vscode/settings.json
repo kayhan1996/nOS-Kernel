@@ -2,6 +2,7 @@
     "files.associations": {
         "uart.h": "c",
         "type_traits": "cpp",
-        "printx.h": "c"
+        "printx.h": "c",
+        "timer.h": "c"
     }
 }
