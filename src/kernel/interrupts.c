@@ -1,7 +1,9 @@
 #include "interrupts.h"
 
-#define IRQ_BASE    0x3f00b200
-#define System_Timer       (1 << 1)
+#define CORE_TIMER_IRQ      ((volatile uint32_t*)0x40000040)
+#define IRQ_BASE            0x3f00b200
+#define System_Timer        (1 << 1)
+#define ROUTE_IRQ_TO_CORE0  (1 << 1)
 
 struct IRQ_PERIPHERAL {
     volatile uint32_t BASIC_PENDING;
@@ -20,6 +22,8 @@ struct IRQ_PERIPHERAL {
 
 void enable_interrupt_controller(){
     IRQ->ENABLE_IRQS1 |= System_Timer;
+    *CORE_TIMER_IRQ |= ROUTE_IRQ_TO_CORE0;
+
 }
 
 uint32_t get_pending_interrupts(){

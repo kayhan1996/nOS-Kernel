@@ -1,4 +1,5 @@
 #include "timer.h"
+#include "printx.h"
 
 #define TIMER_BASE          0x3f003000
 #define TIMER_M1            (1 << 1)
@@ -16,6 +17,7 @@ struct SYSTEM_TIMER {
 
 uint32_t next_time;
 const uint32_t interval = 4000000;
+uint32_t arm_interval;
 
 void init_timer(){
     next_time = TIMER->CLO;
@@ -23,10 +25,23 @@ void init_timer(){
     TIMER->C1 = next_time;
 }
 
+void init_arm_timer(int IRQ_interal){
+    arm_interval = IRQ_interal;
+    register enable = 0b1;
+    asm("msr CNTP_CTL_EL0, %[enable]" :: [enable] "r" (enable));
+    register countdown = arm_interval;
+    asm("msr CNTP_TVAL_EL0, %[countdown]" :: [countdown] "r" (countdown));
+}
+
 void set_next_time(){
     next_time += interval;
     TIMER->C1 = next_time;
     TIMER->CS = TIMER_M1;
+}
+
+void set_next_time_arm(){
+    register tmp = arm_interval;
+	asm("msr CNTP_TVAL_EL0, %[tmp]" :: [tmp] "r" (tmp));
 }
 
 uint32_t get_current_time(){

@@ -5,7 +5,11 @@
 
 void init_timer();
 
+void init_arm_timer(int IRQ_interval);
+
 void set_next_time();
+
+void set_next_time_arm();
 
 uint32_t get_current_time();
 

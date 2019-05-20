@@ -21,12 +21,29 @@ void kernel_main(unsigned long r0, unsigned long r1, unsigned long atags)
 
 	asm("msr daifclr, #2");
 
-	int i = 0;
+	init_arm_timer(50000000);
+	enable_interrupt_controller();
+
 	while(1){
-		printf("Current Time: %d\n", get_current_time());
-		printf("Next Timer: %d\n", get_next_time());
-		timer_delay(10);
+		counter_arm(1000000);
 	}
+}
+
+void counter_arm(int n){
+	register unsigned long f, t, r;
+    // get the current counter frequency
+    asm volatile ("mrs %0, cntfrq_el0" : "=r"(f));
+	printf("Frequency: %d\n", f);
+    // read the current counter
+    asm volatile ("mrs %0, cntpct_el0" : "=r"(t));
+	printf("Current Counter: %d\n", t);
+    // calculate expire value for counter
+    t+=((f/1000)*n)/1000;
+    do{asm volatile ("mrs %0, cntpct_el0" : "=r"(r));}while(r<t);
+
+	register uint64_t tmp;
+	asm("mrs %[tmp], CNTP_TVAL_EL0" : [tmp] "=r" (tmp));
+	printf("TimerValue: %d\n", tmp);
 }
 
 void currentEL(){

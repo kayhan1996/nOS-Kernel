@@ -10,12 +10,15 @@ enum Exception_State{
 };
 
 void exception_handler(enum Exception_State exception_state){
+    printf("---------------------------------\n");
     switch(exception_state){
         case IRQ:
-            set_next_time();
+            //set_next_time();
+            set_next_time_arm();
             printf("IRQ interrupt occurred\n");
             break;
         default:
             printf("Unknown Exception Occurred\n");
     }
+    printf("----------------------------------\n");
 }
