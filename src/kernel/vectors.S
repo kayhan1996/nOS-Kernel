@@ -4,7 +4,7 @@
 .endm
 
 .macro  save_registers
-    sub     sp, sp, #8*32
+    sub     sp, sp, #8 * 32
     stp     x0, x1, [sp, #16 * 0]
     stp     x2, x3, [sp, #16 * 1]
     stp     x4, x5, [sp, #16 * 2]
@@ -21,9 +21,17 @@
     stp     x26, x27, [sp, #16 * 13]
     stp     x28, x29, [sp, #16 * 14]
     str     x30, [sp, #16 * 15]
+    
+    mrs     x0, SPSR_EL1
+    mrs     x1, ELR_EL1
+    stp     x0, x1, [sp, #16 * 16]
 .endm
 
 .macro  load_registers
+    ldp     x0, x1, [sp, #16 * 16]
+    msr     SPSR_EL1, x0
+    msr     ELR_EL1, x1
+    
     ldp     x0, x1, [sp, #16 * 0]
     ldp     x2, x3, [sp, #16 * 1]
     ldp     x4, x5, [sp, #16 * 2]

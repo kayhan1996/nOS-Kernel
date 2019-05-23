@@ -23,9 +23,16 @@ struct IRQ_PERIPHERAL {
 void enable_interrupt_controller(){
     IRQ->ENABLE_IRQS1 |= System_Timer;
     *CORE_TIMER_IRQ |= ROUTE_IRQ_TO_CORE0;
-
 }
 
 uint32_t get_pending_interrupts(){
     return IRQ->PENDING_1;
+}
+
+void enable_irq(){
+    asm("msr daifclr, #2");
+}
+
+void disable_irq(){
+    asm("msr daifset, #2");
 }

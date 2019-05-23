@@ -27,9 +27,9 @@ void init_timer(){
 
 void init_arm_timer(int IRQ_interal){
     arm_interval = IRQ_interal;
-    register enable = 0b1;
+    register uint64_t enable = 0b1;
     asm("msr CNTP_CTL_EL0, %[enable]" :: [enable] "r" (enable));
-    register countdown = arm_interval;
+    register uint64_t countdown = 100000000;
     asm("msr CNTP_TVAL_EL0, %[countdown]" :: [countdown] "r" (countdown));
 }
 

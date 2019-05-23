@@ -1,6 +1,7 @@
 #include "printx.h"
 #include "stdint.h"
 #include "timer.h"
+#include "process.h"
 
 enum Exception_State{
     Synchronouse = 0,
@@ -9,13 +10,16 @@ enum Exception_State{
     SError = 3
 };
 
+void timer_tick(){
+    set_next_time_arm();
+    schedule();
+}
+
 void exception_handler(enum Exception_State exception_state){
     printf("---------------------------------\n");
     switch(exception_state){
         case IRQ:
-            //set_next_time();
-            set_next_time_arm();
-            printf("IRQ interrupt occurred\n");
+            timer_tick();
             break;
         default:
             printf("Unknown Exception Occurred\n");

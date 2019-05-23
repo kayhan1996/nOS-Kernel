@@ -4,25 +4,16 @@
 #include "asm.h"
 #include "uart.h"
 #include "printx.h"
-#include "interrupts.h"
-#include "timer.h"
+#include "process.h"
 
 #if defined(__cplusplus)
 extern "C" /* Use C linkage for kernel_main. */
 #endif
 
-void kernel_main(unsigned long r0, unsigned long r1, unsigned long atags)
-{
+void kernel_main(){
 	init_uart();
 	init_printf(0, putc);
-	
-	enable_interrupt_controller();
-	init_timer();
-
-	asm("msr daifclr, #2");
-
-	init_arm_timer(50000000);
-	enable_interrupt_controller();
+	init_processes();
 
 	while(1){
 		counter_arm(1000000);
