@@ -1,7 +1,6 @@
 #include "printx.h"
 #include "stdint.h"
 #include "timer.h"
-#include "process.h"
 
 enum Exception_State{
     Synchronouse = 0,
@@ -11,7 +10,6 @@ enum Exception_State{
 };
 
 void timer_tick(){
-    schedule();
     set_next_time_arm();
 }
 
