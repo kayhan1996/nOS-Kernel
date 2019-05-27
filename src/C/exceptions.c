@@ -11,8 +11,8 @@ enum Exception_State{
 };
 
 void timer_tick(){
-    set_next_time_arm();
     schedule();
+    set_next_time_arm();
 }
 
 void exception_handler(enum Exception_State exception_state){

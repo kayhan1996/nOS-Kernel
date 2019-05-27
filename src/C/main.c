@@ -13,6 +13,7 @@ extern "C" /* Use C linkage for kernel_main. */
 void kernel_main(){
 	init_uart();
 	init_printf(0, putc);
+	init_memory_manager();
 	init_processes();
 
 	while(1){

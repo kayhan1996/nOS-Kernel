@@ -2,25 +2,41 @@
 #include "timer.h"
 #include "interrupts.h"
 #include "stdbool.h"
+#include "mm.h"
 
 extern void switch_context(struct Process *prev, struct Process *next);
-extern void new_process(process_ptr *process, void *args);
+extern void new_process(struct Process *process);
+
+struct Process *current;
+struct Process *GlobalProcessTable[32];
+int numProcesses;
+
 
 void init_processes(void){
     enable_irq();
 	enable_interrupt_controller();
 	init_arm_timer(TIME_SLICE);
 
-    GlobalProcessTable[0] = (struct Process){
-        .context = {0, 0, 0},
-        .state = Running,
-        .priority = High,
-        .counter = 0,
-        .preempt = 0
-    };
-    numProcesses++;
+    struct Process *kernelMain = (struct Process*) allocate_page_frame;
 
-    current = &GlobalProcessTable[0];
+    kernelMain->priority = High;
+    kernelMain->state = Running;
+
+    GlobalProcessTable[0] = kernelMain;
+
+    current = kernelMain;
+    numProcesses = 1;
+}
+
+void create_process(uint64_t* args, uint64_t* function){
+    struct Process *p = (struct Process*) allocate_page_frame();
+    p->state = Ready;
+    p->priority = High;
+    p->context.args = args;
+    p->context.sp = p+4096;
+    p->context.elr = function;
+    p->pid = ++numProcesses;
+    GlobalProcessTable[numProcesses] = p;
 }
 
 void switch_to(struct Process *process){
@@ -34,7 +50,6 @@ void schedule(){
         return;
     }
     current->counter = 0;
-    enable_irq();
 
     int next, maxCount;
     struct Process *process;
@@ -64,9 +79,4 @@ void schedule(){
     }
 
     switch_to(&GlobalProcessTable[next]);
-}
-
-void create_process(process_ptr *process, uint64_t *args){
-    struct Process *p = &GlobalProcessTable[++numProcesses];
-    p->context.elr = (uint64_t)new_process;
 }
