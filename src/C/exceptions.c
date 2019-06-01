@@ -1,6 +1,7 @@
 #include "printx.h"
 #include "stdint.h"
 #include "timer.h"
+#include "process.h"
 
 enum Exception_State{
     Synchronouse = 0,
@@ -11,16 +12,18 @@ enum Exception_State{
 
 void timer_tick(){
     set_next_time_arm();
+    schedule();
 }
 
-void exception_handler(enum Exception_State exception_state){
-    printf("---------------------------------\n");
-    switch(exception_state){
-        case IRQ:
-            timer_tick();
-            break;
-        default:
-            printf("Unknown Exception Occurred\n");
-    }
-    printf("----------------------------------\n");
+void exception_handler(){
+    printf("Hadoop?\n");
+    timer_tick();
+}
+
+void error_handler(){
+    uint64_t esr = 0;
+    asm("mrs    %[esr], esr_el1" : [esr] "=r" (esr));
+    printf("ESR: %x\n", esr);
+    printf("Unknown Exception Occurred\n");
+    while(1){};
 }
