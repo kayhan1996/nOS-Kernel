@@ -6,7 +6,7 @@
 .macro  save_registers
     msr     SPSel, #0
 
-    sub     sp, sp, #(16 * 16)
+    sub     sp, sp, #(8 * 34)
     //store registers to PCB
     stp     x0, x1, [sp, #16 * 0]
     stp     x2, x3, [sp, #16 * 1]
@@ -59,7 +59,7 @@
     msr     SPSR_EL1, x1
     mov     sp, x2
 
-    add     sp, sp, #(16 * 16)
+    add     sp, sp, #(8 * 34)
 .endm
 
 .align   11
@@ -91,6 +91,7 @@ exc_handle:
     b  error_handler
 
 handle_irq:
+    mov  x0, x0
     save_registers
     bl  exception_handler
     load_registers
