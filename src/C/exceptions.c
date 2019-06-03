@@ -16,7 +16,6 @@ void timer_tick(){
 }
 
 void exception_handler(){
-    printf("Hadoop?\n");
     timer_tick();
 }
 

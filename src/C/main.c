@@ -9,6 +9,8 @@
 #include "interrupts.h"
 #include "timer.h"
 
+#include "pretty_print.h"
+
 #if defined(__cplusplus)
 extern "C" /* Use C linkage for kernel_main. */
 #endif
@@ -22,24 +24,26 @@ void p1(char *str){
 	}
 }
 
+
+
+
 void kernel_main(){
 	init_uart();
 	init_printf(0, putc);
 	printf("Kernel Program Started.\n");
+	clear();
+	
+	paint();
+
 	init_memory_manager();
 	init_process_manager();
 	enable_interrupt_controller();
-	init_arm_timer(100000000);
+	init_arm_timer(300000000);
 	enable_irq();
 
 	create_process(p1, "abcde\n");
 	create_process(p1, "     		12345\n");
 
 	while(1){
-		disable_irq();
-		printf("Continue...?");
-		char c = receive();
-		enable_irq();
-		delay(5000000);
 	}
 }
