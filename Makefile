@@ -1,11 +1,20 @@
 COMPILER ?= aarch64-elf
 
-CPPOPS = -ffreestanding -Wall -Wextra -fno-exceptions -fno-rtti -fpermissive
-COPS = -ggdb -nostdlib -nostartfiles -ffreestanding -O3
-ASMOPS = -ggdb -nostdlib -nostartfiles -ffreestanding 
+DEBUG ?= 0
+ifeq ($(DEBUG), 1)
+    STOP = -s -S
+else
+    
+endif
+
+CPPOPS = -g -ffreestanding -Wall -Wextra -fno-exceptions -fno-rtti -fpermissive
+COPS = -g -nostdlib -nostartfiles -ffreestanding
+ASMOPS = -g -nostdlib -nostartfiles -ffreestanding 
 
 BUILD_DIR = build/objects
 BIN_DIR = build/bin
+
+SRC_DIR = src
 
 C_SRC_DIR = src/C
 ASM_SRC_DIR = src/ASM
@@ -43,6 +52,8 @@ CPP_FILES = $(wildcard $(CPP_SRC_DIR)/*.cpp)
 C_FILES = $(wildcard $(C_SRC_DIR)/*.c)
 ASM_FILES = $(wildcard $(ASM_SRC_DIR)/*.S)
 
+SOURCES := $(shell find $(SRC_DIR) -name '*.c')
+
 OBJ_FILES = $(C_FILES:$(C_SRC_DIR)/%.c=$(BUILD_DIR)/%.c.o)
 OBJ_FILES += $(ASM_FILES:$(ASM_SRC_DIR)/%.S=$(BUILD_DIR)/%.asm.o)
 OBJ_FILES += $(CPP_FILES:$(CPP_SRC_DIR)/%.cpp=$(BUILD_DIR)/%.cpp.o)
@@ -74,8 +85,11 @@ build: $(OBJ_FILES) $(HEADER_FILES)
 	@echo "Build Success!"
 	@echo "---------------------------------------------------------------------------------"
 
+	@echo "\e[36mC Files:"
+	@echo $(SOURCES) | sed -e 's/ /\n/g'
+
 .PHONY : run
 run : build
-	qemu-system-aarch64 -m 1G -M raspi3 -serial stdio -kernel build/kernel8.img -d mmu
+	qemu-system-aarch64 $(STOP) -m 1G -M raspi3 -serial stdio -kernel build/kernel8.img -d mmu
 
 rebuild: clean build

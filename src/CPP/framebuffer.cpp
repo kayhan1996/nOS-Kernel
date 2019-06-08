@@ -165,13 +165,16 @@ void set_offset(int x, int y){
     call_mailbox(message, 8);
 }
 
-void draw(){
+void movingRectangle(){
     Clear();
     static int x = 0;
-    Pixel green;
-    green.green = 255;
 
-    draw_rect(x++, 100, 50, 50, green);
+    Pixel p;
+    p.blue = 0;
+    p.green = 255;
+    p.red = 255;
+
+    draw_rect(x++, 100, 50, 50, p);
 
     if(x > 500){
         x = 0;
@@ -180,8 +183,9 @@ void draw(){
     kprintf("Here!\n");
 }
 
-void draw_test(){
-
+void double_buffer(void (*draw)(void)){
+    printf("Double buffered drawing\n");
+    
     int delayTime = 100000000;
 
     int buffer = 0;
@@ -206,6 +210,11 @@ void draw_test(){
 
         kprintf("delay time: %d\n", delayTime);
     }
+}
+
+void draw_test(){
+
+    double_buffer(movingRectangle);
 
     kprintf("Created drawing!\n");
     while(1){asm("nop");}
