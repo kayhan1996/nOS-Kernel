@@ -48,6 +48,12 @@ uint32_t get_current_time(){
     return TIMER->CLO;
 }
 
+uint64_t get_current_time_arm(){
+    uint64_t time;
+    asm("mrs %[time], CNTPCT_EL0" : [time] "=r" (time));
+    return time;
+}
+
 uint32_t get_next_time(){
     return TIMER->C1;
 }
@@ -57,5 +63,14 @@ void timer_delay(uint32_t seconds){
     int dt = t + (seconds * 1000000);
     while(TIMER->CLO != dt){
         asm("nop");
+    }
+}
+
+void timer_delay_arm(uint64_t msecs){
+    int t = get_current_time_arm();
+    int end = t+msecs*1000;
+
+    while(t < end){
+        t = get_current_time_arm();
     }
 }

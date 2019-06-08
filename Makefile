@@ -1,6 +1,6 @@
 COMPILER ?= aarch64-elf
 
-COPS = -ggdb -nostdlib -nostartfiles -ffreestanding 
+COPS = -ggdb -nostdlib -nostartfiles -ffreestanding -O3
 ASMOPS = -ggdb -nostdlib -nostartfiles -ffreestanding 
 
 BUILD_DIR = build/objects
@@ -48,6 +48,6 @@ build: $(OBJ_FILES) $(HEADER_FILES)
 
 .PHONY : run
 run : build
-	qemu-system-aarch64 -m 1G -M raspi3 -serial stdio -kernel build/kernel8.img -d mmu -display none
+	qemu-system-aarch64 -m 1G -M raspi3 -serial stdio -kernel build/kernel8.img -d mmu
 
 rebuild: clean build

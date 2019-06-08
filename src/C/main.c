@@ -11,6 +11,10 @@
 
 #include "pretty_print.h"
 
+#include "framebuffer.h"
+
+#include "mailbox.h"
+
 #if defined(__cplusplus)
 extern "C" /* Use C linkage for kernel_main. */
 #endif
@@ -31,9 +35,31 @@ void kernel_main(){
 	init_uart();
 	init_printf(0, putc);
 	printf("Kernel Program Started.\n");
-	clear();
-	
-	paint();
+
+	uint32_t m[8];
+
+	m[0] = 8 * 4;
+	m[1] = 0;
+
+	m[2] = 0x00030007;	//get min clock rate
+	m[3] = 8;			//value buffer size
+		//request
+		m[4] = 4;	//length
+		m[5] = 0x3;	//clock id
+		//response
+		m[6] = 0;	//clock rate value
+
+	m[7] = 0;	//end tag
+
+	call_mailbox(m, 8);
+
+	int x = get_current_time_arm();
+	printf("x: %x\n", x);
+	init_framebuffer();
+	printf("Initialized framebuffer\n");
+	draw_test();
+
+	while(1){asm("nop");}
 
 	init_memory_manager();
 	init_process_manager();
