@@ -1,8 +1,11 @@
+#include "framebuffer.h"
+
+extern "C" {
 #include "mailbox.h"
 #include "printx.h"
-#include "homer.h"
 #include "asm.h"
 #include "timer.h"
+}
 
 #ifdef DEBUG            
     #define kprintf         tfp_printf

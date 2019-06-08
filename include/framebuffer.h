@@ -3,8 +3,15 @@
 
 #include "stdint.h"
 
-void init_framebuffer();
+#ifdef __cplusplus
+extern "C" {
+#endif
 
+void init_framebuffer();
 void draw_test();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
