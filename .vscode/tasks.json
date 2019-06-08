@@ -6,10 +6,32 @@
         {
             "label": "build",
             "type": "shell",
-            "command": "make run",
+            "command": "make",
             "options": {
-                "cwd": "${workspaceRoot}/build"
-            } 
+                "cwd": "${workspaceRoot}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ]
+        },
+        {
+            "label": "rebuild",
+            "type": "shell",
+            "command": "make rebuild",
+            "options": {
+                "cwd": "${workspaceRoot}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ]
+        },
+        {
+            "label": "clean",
+            "type": "shell",
+            "command": "make clean",
+            "options": {
+                "cwd": "${workspaceRoot}"
+            }
         }
     ]
 }
