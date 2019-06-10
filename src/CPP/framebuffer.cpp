@@ -212,6 +212,14 @@ void double_buffer(void (*draw)(void)){
     }
 }
 
+void* get_frame_buffer(){
+    return framebuffer;
+}
+
+uint32_t get_pitch(){
+    return pitch;
+}
+
 void draw_test(){
 
     double_buffer(movingRectangle);
