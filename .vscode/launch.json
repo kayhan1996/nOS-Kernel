@@ -8,10 +8,11 @@
             "name": "Debug",
             "type": "cppdbg",
             "request": "launch",
+            "cwd": ".",
             "miDebuggerPath": "/usr/local/bin/aarch64-elf-gdb",
             "targetArchitecture": "arm",
-            "program": "/home/kayhan/Development/Bare-Metal-RPi/build/bin/kernel.sym",
-
+            "program": "${workspaceRoot}/build/bin/kernel.sym",
+            "preLaunchTask": "run",
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",
@@ -19,7 +20,7 @@
                     "ignoreFailures": true
                 },
             {
-                "text": "file /home/kayhan/Development/Bare-Metal-RPi/build/bin/kernel.sym"
+                "text": "file ${workspaceRoot}/build/bin/kernel.sym"
             },
             {
                 "text": "target remote localhost:1234"
@@ -29,8 +30,9 @@
             }
                 
             ],
-            "externalConsole": false,
-            "cwd": "/home/kayhan/Development/Bare-Metal-RPi/"
+            "osx": {
+                "miDebuggerPath": "/usr/local/bin/aarch64-elf-gdb"
+            }
         },
         {
             "type": "gdb",

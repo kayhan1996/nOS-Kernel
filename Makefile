@@ -1,6 +1,6 @@
 COMPILER ?= aarch64-elf
 
-DEBUG ?= 0
+DEBUG ?= 1
 ifeq ($(DEBUG), 1)
     STOP = -s -S
 else

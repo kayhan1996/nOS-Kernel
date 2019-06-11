@@ -36,6 +36,34 @@
             "options": {
                 "cwd": "${workspaceRoot}"
             }
+        },
+        {
+            "label": "run",
+            "type": "shell",
+            "command": "make run",
+            "options": {
+                "cwd": "${workspaceRoot}"
+            },
+            "isBackground": true,
+            "problemMatcher":{
+                "pattern":[
+                    {
+                        "regexp": ".*",
+                        "file": 1,
+                        "location": 2,
+                        "message": 3
+                    }
+                ],
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern":{
+                        "regexp": "qemu-system-aarch64*"
+                    },
+                    "endsPattern":{
+                        "regexp": "-d*"
+                    }
+                }
+            }
         }
     ]
 }
