@@ -9,8 +9,6 @@
 #include "interrupts.h"
 #include "timer.h"
 
-#include "pretty_print.h"
-
 #include "framebuffer.h"
 
 #include "mailbox.h"
@@ -35,17 +33,11 @@ void kernel_main() {
   init_printf(0, putc);
   printf("Kernel Program Started.\n");
 
-  init_framebuffer();
-  // testCanvas();
-
-  for (int i = 0; i < 15; i++) {
-  	printf("Hello! %d", i);
-  }
-
   init_memory_manager();
   init_process_manager();
+
   enable_interrupt_controller();
-  init_arm_timer(300000000);
+  init_arm_timer(3000000);
   enable_irq();
 
   create_process(test_process, "abcde\n");

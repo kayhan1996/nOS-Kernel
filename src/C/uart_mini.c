@@ -1,6 +1,5 @@
-#include "mini_uart.h"
+#include "uart_mini.h"
 #include "asm.h"
-#include "LED.h"
 
 #define BASE                0x3f215000
 #define IRQ_STATUS          ((volatile uint32_t*)(BASE+0x00))
