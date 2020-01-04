@@ -1,15 +1,16 @@
-COMPILER ?= aarch64-elf
+CC = clang
+CC++ = clang++
 
-DEBUG ?= 1
-ifeq ($(DEBUG), 1)
-    STOP = -s -S
-else
-    
-endif
+CPP_Flags =  --target=aarch64-none-elf \
+			 -g \
+			 -nostdlib -fno-builtin -nostartfiles -ffreestanding \
+			 -fno-exceptions -fno-rtti -fpermissive \
+			 -w
 
-CPPOPS = -g -ffreestanding -Wall -Wextra -fno-exceptions -fno-rtti -fpermissive
-COPS = -g -nostdlib -nostartfiles -ffreestanding
-ASMOPS = -g -nostdlib -nostartfiles -ffreestanding 
+C_Flags = --target=aarch64-none-elf \
+		  -g \
+		  -nostdlib -fno-builtin -nostartfiles -ffreestanding\
+		  -w
 
 BUILD_DIR = build/objects
 BIN_DIR = build/bin
@@ -30,29 +31,22 @@ clean :
 	rm -rf build
 
 $(BUILD_DIR)/%.cpp.o: $(CPP_SRC_DIR)/%.cpp
-	@echo "\n\n\n\e[32m"
-	@echo "---------------------------------------------------------------------------------"
-	@echo "STARTING C++ COMPILATION"
-	@echo "---------------------------------------------------------------------------------"
-
 	@mkdir -p $(@D)
-	@$(COMPILER)-g++ $(CPPOPS) -I$(HEADER_DIR) -c $<  -o $@
+	@$(CC++) $(CPP_Flags) -I$(HEADER_DIR) -c $<  -o $@
 
 $(BUILD_DIR)/%.c.o: $(C_SRC_DIR)/%.c
 	@mkdir -p $(@D)
-	@$(COMPILER)-gcc $(COPS) -I$(HEADER_DIR) -c $<  -o $@
-
+	@$(CC) $(C_Flags) -I$(HEADER_DIR) -c $<  -o $@
 
 $(BUILD_DIR)/%.asm.o: $(ASM_SRC_DIR)/%.S
 	@mkdir -p $(@D)
-	@$(COMPILER)-gcc $(ASMOPS) -I$(HEADER_DIR) -c $< -o $@
+	@$(CC) $(C_Flags) -I$(HEADER_DIR) -c $< -o $@
 
+SOURCES := $(shell find $(SRC_DIR) -name '*.c')
 
 CPP_FILES = $(wildcard $(CPP_SRC_DIR)/*.cpp)
 C_FILES = $(wildcard $(C_SRC_DIR)/*.c)
 ASM_FILES = $(wildcard $(ASM_SRC_DIR)/*.S)
-
-SOURCES := $(shell find $(SRC_DIR) -name '*.c')
 
 OBJ_FILES = $(C_FILES:$(C_SRC_DIR)/%.c=$(BUILD_DIR)/%.c.o)
 OBJ_FILES += $(ASM_FILES:$(ASM_SRC_DIR)/%.S=$(BUILD_DIR)/%.asm.o)
@@ -62,18 +56,8 @@ HEADER_FILES += $(wildcard $(HEADER_DIR))
 
 
 build: $(OBJ_FILES) $(HEADER_FILES)
-	@echo "\e[34mC Files:"
-	@echo $(C_FILES) | sed -e 's/ /\n/g'
-
-	@echo "\e[35mC++ Files:"
-	@echo $(CPP_FILES) | sed -e 's/ /\n/g'
-
-	@echo "\e[36mC Files:"
-	@echo $(OBJ_FILES) | sed -e 's/ /\n/g'
-	
-
 	@mkdir -p $(BIN_DIR)
-	@$(COMPILER)-ld -g -T linker.ld -o $(BIN_DIR)/kernel8.elf  $(OBJ_FILES)
+	@ld.lld -g -T linker.ld -o $(BIN_DIR)/kernel8.elf $(OBJ_FILES) 
 
 	@$(COMPILER)-objdump -S --disassemble $(BIN_DIR)/kernel8.elf > $(BIN_DIR)/kernel8.dump
 	@$(COMPILER)-objcopy --only-keep-debug $(BIN_DIR)/kernel8.elf $(BIN_DIR)/kernel.sym
@@ -85,11 +69,9 @@ build: $(OBJ_FILES) $(HEADER_FILES)
 	@echo "Build Success!"
 	@echo "---------------------------------------------------------------------------------"
 
-	@echo "\e[36mC Files:"
-	@echo $(SOURCES) | sed -e 's/ /\n/g'
 
 .PHONY : run
 run : build
-	qemu-system-aarch64 $(STOP) -m 1G -M raspi3 -serial stdio -kernel build/kernel8.img -d mmu
+	qemu-system-aarch64 -m 1G -M raspi3 -serial stdio -kernel build/kernel8.img -display none
 
 rebuild: clean build

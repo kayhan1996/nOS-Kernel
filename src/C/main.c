@@ -40,9 +40,7 @@ void kernel_main(){
 
 
 	init_framebuffer();
-	testCanvas();
-
-	while(1){asm("nop");}
+	//testCanvas();
 
 	init_memory_manager();
 	init_process_manager();

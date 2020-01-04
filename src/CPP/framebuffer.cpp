@@ -86,7 +86,7 @@ void init_framebuffer(){
         pitch = message[33];
 
         buffer1 = (void *)(message[28] & 0x3FFFFFFF);
-        buffer2 = buffer1 + (width+1)*height*4;
+        buffer2 = (void *)((long)buffer1 + (width+1)*height*4);
 
         framebuffer = buffer1;
 
@@ -106,7 +106,7 @@ void init_framebuffer(){
 }
 
 void draw_pixel(int x, int y, Pixel color){
-    Pixel *ctx = framebuffer + (y*pitch) + (x*4);
+    Pixel *ctx = (Pixel *)((long)framebuffer + (y*pitch) + (x*4));
     *ctx = color;
 }
 
