@@ -1,0 +1,21 @@
+[
+    {
+        "arguments": [
+            "clang",
+            "-c",
+            "--target=aarch64-none-elf",
+            "-g",
+            "-nostdlib",
+            "-fno-builtin",
+            "-nostartfiles",
+            "-ffreestanding",
+            "-w",
+            "-Iinclude",
+            "-o",
+            "build/objects/main.c.o",
+            "src/C/main.c"
+        ],
+        "directory": "/home/kay/dev/nOS-Kernel",
+        "file": "src/C/main.c"
+    }
+]
