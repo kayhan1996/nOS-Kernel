@@ -7,7 +7,7 @@ NC='\033[0m' # No Color
 
 echo -e "${GREEN}Copying Source${NC}"
 ssh ${HOST} "cd ~; mkdir -p tmp"
-rsync -rzu --stats ../nOS-Kernel/src ${HOST}:~/tmp/ | grep "Number of files"
+rsync -rzu --stats ../nOS-Kernel/src ${HOST}:~/tmp/ | grep "files transferred"
 rsync -rzu ../nOS-Kernel/include ${HOST}:~/tmp/
 rsync -zu ../nOS-Kernel/Makefile ${HOST}:~/tmp/
 rsync -zu ../nOS-Kernel/linker.ld ${HOST}:~/tmp/
