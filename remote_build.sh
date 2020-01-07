@@ -7,10 +7,10 @@ NC='\033[0m' # No Color
 
 echo -e "${GREEN}Copying Source${NC}"
 ssh ${HOST} "cd ~; mkdir -p tmp"
-rsync -rzuP ../nOS-Kernel/src ${HOST}:~/tmp/
-rsync -rzuP ../nOS-Kernel/include ${HOST}:~/tmp/
-rsync -zuP ../nOS-Kernel/Makefile ${HOST}:~/tmp/
-rsync -zuP ../nOS-Kernel/linker.ld ${HOST}:~/tmp/
+rsync -rzu --stats ../nOS-Kernel/src ${HOST}:~/tmp/ | grep "Number of files"
+rsync -rzu ../nOS-Kernel/include ${HOST}:~/tmp/
+rsync -zu ../nOS-Kernel/Makefile ${HOST}:~/tmp/
+rsync -zu ../nOS-Kernel/linker.ld ${HOST}:~/tmp/
 
 echo -e "${GREEN}Starting Build${NC}"
 ssh ${HOST} "cd ~/tmp; make"
