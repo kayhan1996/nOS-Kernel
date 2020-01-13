@@ -48,7 +48,8 @@ $(BUILD_DIR)/%.asm.o: $(ASM_SRC_DIR)/%.S
 SOURCES := $(shell find $(SRC_DIR) -name '*.c')
 
 CPP_FILES = $(wildcard $(CPP_SRC_DIR)/*.cpp)
-C_FILES = $(wildcard $(C_SRC_DIR)/*.c)
+#C_FILES = $(wildcard $(C_SRC_DIR)/*.c)
+C_FILES = $(shell find $(C_SRC_DIR)/ -type f -name '*.c')
 ASM_FILES = $(wildcard $(ASM_SRC_DIR)/*.S)
 
 OBJ_FILES = $(C_FILES:$(C_SRC_DIR)/%.c=$(BUILD_DIR)/%.c.o)
@@ -61,7 +62,7 @@ build/kernel8.img: $(OBJ_FILES) $(HEADER_FILES)
 	@mkdir -p $(BIN_DIR)
 	@ld.lld -g -T linker.ld -o $(BIN_DIR)/kernel8.elf $(OBJ_FILES) 
 
-	@$(OBJDUMP) -S --disassemble $(BIN_DIR)/kernel8.elf > $(BIN_DIR)/kernel8.dump
+	#@$(OBJDUMP) -S --disassemble $(BIN_DIR)/kernel8.elf > $(BIN_DIR)/kernel8.dump
 	@$(OBJCOPY) --only-keep-debug $(BIN_DIR)/kernel8.elf build/kernel.sym
 	@$(OBJCOPY) --strip-debug $(BIN_DIR)/kernel8.elf
 	@$(OBJCOPY) $(BIN_DIR)/kernel8.elf -O binary build/kernel8.img
@@ -75,6 +76,6 @@ build: build/kernel8.img
 
 .PHONY : run
 run : build
-	qemu-system-aarch64 -m 1G -M raspi3 -serial stdio -kernel build/kernel8.img -display none
+	qemu-system-aarch64 -S -gdb tcp::9000 -m 1G -M raspi3 -serial stdio -kernel build/kernel8.img -display none
 
 rebuild: clean build

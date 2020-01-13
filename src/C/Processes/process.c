@@ -1,6 +1,6 @@
 #include "process.h"
 #include "interrupts.h"
-#include "mm.h"
+#include "Memory/frame_allocator.h"
 #include "printx.h"
 
 #define PR_OFFSET                       0xa00000
@@ -16,7 +16,7 @@ int numProcesses;
 void init_process_manager(){
     ProcessTable = (struct Process*)PROCESS_TABLE_BASE;
 
-    struct Process *p = (struct Process*) allocate_page_frame();
+    struct Process *p = (struct Process*) allocate_page_frames(1)->address;
     p->pid = 0;
     p->count = 100;
 
@@ -27,7 +27,7 @@ void init_process_manager(){
 }
 
 void create_process(uint64_t *func, uint64_t *args){
-    struct Process *p = allocate_page_frame();
+    struct Process *p = allocate_page_frames(1)->address;
     p->context.sp = p + 4096;
     p->context.SPSR_EL1 = 0x340;
     p->context.x19 = args;
