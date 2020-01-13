@@ -109,7 +109,7 @@ void init_mmu(){
     SCTLR_EL1 system_control;
 
     create_TTBR0_tables();
-    create_TTBR1_tables();
+    //create_TTBR1_tables();
 
     asm volatile("dsb sy");
 	int r = ((0x00ul << (0 * 8)) | \
