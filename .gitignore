@@ -4,3 +4,4 @@
 /.vscode/ipch
 /.*
 kernel.sym
+compile_commands.json

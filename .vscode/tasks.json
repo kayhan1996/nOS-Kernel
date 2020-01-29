@@ -6,7 +6,7 @@
         {
             "label": "Remote Build and Run",
             "type": "shell",
-            "command": "./remote_build.sh",
+            "command": "make clean; bear make; make run",
             "isBackground": true,
             "problemMatcher": {
                 "pattern": [
