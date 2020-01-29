@@ -1,8 +1,8 @@
-#include "uart.h"
+#include "Drivers/uart.h"
 #include "stdint.h"
-#include "mailbox.h"
-#include "asm.h"
-#include "GPIO.h"
+#include "Drivers/mailbox.h"
+#include "Drivers/asm.h"
+#include "Drivers/GPIO.h"
 
 #define UART0_BASE		0x3f201000
 #define RX_EMPTY		(1 << 4)

@@ -1,4 +1,4 @@
-#include "mailbox.h"
+#include "Drivers/mailbox.h"
 
 #define MAILBOX_BASE        0x3F00B880
 #define STATUS              ((volatile uint32_t*)(MAILBOX_BASE+0x18))

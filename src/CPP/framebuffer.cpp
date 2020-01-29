@@ -1,10 +1,10 @@
-#include "framebuffer.h"
+#include "Drivers/framebuffer.h"
 
 extern "C" {
-#include "mailbox.h"
-#include "printx.h"
-#include "asm.h"
-#include "timer.h"
+#include "Drivers/mailbox.h"
+#include "Libraries/printx.h"
+#include "Drivers/asm.h"
+#include "Drivers/timer.h"
 }
 
 #ifdef DEBUG            

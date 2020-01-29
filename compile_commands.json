@@ -1,6 +1,316 @@
 [
     {
         "arguments": [
+            "clang++",
+            "-c",
+            "--target=aarch64-none-elf",
+            "-g",
+            "-nostdlib",
+            "-fno-builtin",
+            "-nostartfiles",
+            "-ffreestanding",
+            "-fno-exceptions",
+            "-fno-rtti",
+            "-fpermissive",
+            "-w",
+            "-Iinclude",
+            "-o",
+            "build/objects/framebuffer.cpp.o",
+            "src/CPP/framebuffer.cpp"
+        ],
+        "directory": "/home/kay/dev/nOS-Kernel",
+        "file": "src/CPP/framebuffer.cpp"
+    },
+    {
+        "arguments": [
+            "clang++",
+            "-c",
+            "--target=aarch64-none-elf",
+            "-g",
+            "-nostdlib",
+            "-fno-builtin",
+            "-nostartfiles",
+            "-ffreestanding",
+            "-fno-exceptions",
+            "-fno-rtti",
+            "-fpermissive",
+            "-w",
+            "-Iinclude",
+            "-o",
+            "build/objects/canvas.cpp.o",
+            "src/CPP/canvas.cpp"
+        ],
+        "directory": "/home/kay/dev/nOS-Kernel",
+        "file": "src/CPP/canvas.cpp"
+    },
+    {
+        "arguments": [
+            "clang",
+            "-c",
+            "--target=aarch64-none-elf",
+            "-g",
+            "-nostdlib",
+            "-fno-builtin",
+            "-nostartfiles",
+            "-ffreestanding",
+            "-w",
+            "-Iinclude",
+            "-o",
+            "build/objects/asm.asm.o",
+            "src/ASM/asm.S"
+        ],
+        "directory": "/home/kay/dev/nOS-Kernel",
+        "file": "src/ASM/asm.S"
+    },
+    {
+        "arguments": [
+            "clang",
+            "-c",
+            "--target=aarch64-none-elf",
+            "-g",
+            "-nostdlib",
+            "-fno-builtin",
+            "-nostartfiles",
+            "-ffreestanding",
+            "-w",
+            "-Iinclude",
+            "-o",
+            "build/objects/boot.asm.o",
+            "src/ASM/boot.S"
+        ],
+        "directory": "/home/kay/dev/nOS-Kernel",
+        "file": "src/ASM/boot.S"
+    },
+    {
+        "arguments": [
+            "clang",
+            "-c",
+            "--target=aarch64-none-elf",
+            "-g",
+            "-nostdlib",
+            "-fno-builtin",
+            "-nostartfiles",
+            "-ffreestanding",
+            "-w",
+            "-Iinclude",
+            "-o",
+            "build/objects/Drivers/interrupts.c.o",
+            "src/C/Drivers/interrupts.c"
+        ],
+        "directory": "/home/kay/dev/nOS-Kernel",
+        "file": "src/C/Drivers/interrupts.c"
+    },
+    {
+        "arguments": [
+            "clang",
+            "-c",
+            "--target=aarch64-none-elf",
+            "-g",
+            "-nostdlib",
+            "-fno-builtin",
+            "-nostartfiles",
+            "-ffreestanding",
+            "-w",
+            "-Iinclude",
+            "-o",
+            "build/objects/Memory/memory_descriptor.c.o",
+            "src/C/Memory/memory_descriptor.c"
+        ],
+        "directory": "/home/kay/dev/nOS-Kernel",
+        "file": "src/C/Memory/memory_descriptor.c"
+    },
+    {
+        "arguments": [
+            "clang",
+            "-c",
+            "--target=aarch64-none-elf",
+            "-g",
+            "-nostdlib",
+            "-fno-builtin",
+            "-nostartfiles",
+            "-ffreestanding",
+            "-w",
+            "-Iinclude",
+            "-o",
+            "build/objects/Drivers/timer.c.o",
+            "src/C/Drivers/timer.c"
+        ],
+        "directory": "/home/kay/dev/nOS-Kernel",
+        "file": "src/C/Drivers/timer.c"
+    },
+    {
+        "arguments": [
+            "clang",
+            "-c",
+            "--target=aarch64-none-elf",
+            "-g",
+            "-nostdlib",
+            "-fno-builtin",
+            "-nostartfiles",
+            "-ffreestanding",
+            "-w",
+            "-Iinclude",
+            "-o",
+            "build/objects/Memory/kmalloc.c.o",
+            "src/C/Memory/kmalloc.c"
+        ],
+        "directory": "/home/kay/dev/nOS-Kernel",
+        "file": "src/C/Memory/kmalloc.c"
+    },
+    {
+        "arguments": [
+            "clang",
+            "-c",
+            "--target=aarch64-none-elf",
+            "-g",
+            "-nostdlib",
+            "-fno-builtin",
+            "-nostartfiles",
+            "-ffreestanding",
+            "-w",
+            "-Iinclude",
+            "-o",
+            "build/objects/Drivers/mailbox.c.o",
+            "src/C/Drivers/mailbox.c"
+        ],
+        "directory": "/home/kay/dev/nOS-Kernel",
+        "file": "src/C/Drivers/mailbox.c"
+    },
+    {
+        "arguments": [
+            "clang",
+            "-c",
+            "--target=aarch64-none-elf",
+            "-g",
+            "-nostdlib",
+            "-fno-builtin",
+            "-nostartfiles",
+            "-ffreestanding",
+            "-w",
+            "-Iinclude",
+            "-o",
+            "build/objects/Memory/frame_allocator.c.o",
+            "src/C/Memory/frame_allocator.c"
+        ],
+        "directory": "/home/kay/dev/nOS-Kernel",
+        "file": "src/C/Memory/frame_allocator.c"
+    },
+    {
+        "arguments": [
+            "clang",
+            "-c",
+            "--target=aarch64-none-elf",
+            "-g",
+            "-nostdlib",
+            "-fno-builtin",
+            "-nostartfiles",
+            "-ffreestanding",
+            "-w",
+            "-Iinclude",
+            "-o",
+            "build/objects/vectors.asm.o",
+            "src/ASM/vectors.S"
+        ],
+        "directory": "/home/kay/dev/nOS-Kernel",
+        "file": "src/ASM/vectors.S"
+    },
+    {
+        "arguments": [
+            "clang",
+            "-c",
+            "--target=aarch64-none-elf",
+            "-g",
+            "-nostdlib",
+            "-fno-builtin",
+            "-nostartfiles",
+            "-ffreestanding",
+            "-w",
+            "-Iinclude",
+            "-o",
+            "build/objects/Libraries/linked_list.c.o",
+            "src/C/Libraries/linked_list.c"
+        ],
+        "directory": "/home/kay/dev/nOS-Kernel",
+        "file": "src/C/Libraries/linked_list.c"
+    },
+    {
+        "arguments": [
+            "clang",
+            "-c",
+            "--target=aarch64-none-elf",
+            "-g",
+            "-nostdlib",
+            "-fno-builtin",
+            "-nostartfiles",
+            "-ffreestanding",
+            "-w",
+            "-Iinclude",
+            "-o",
+            "build/objects/Libraries/printx.c.o",
+            "src/C/Libraries/printx.c"
+        ],
+        "directory": "/home/kay/dev/nOS-Kernel",
+        "file": "src/C/Libraries/printx.c"
+    },
+    {
+        "arguments": [
+            "clang",
+            "-c",
+            "--target=aarch64-none-elf",
+            "-g",
+            "-nostdlib",
+            "-fno-builtin",
+            "-nostartfiles",
+            "-ffreestanding",
+            "-w",
+            "-Iinclude",
+            "-o",
+            "build/objects/Drivers/uart_mini.c.o",
+            "src/C/Drivers/uart_mini.c"
+        ],
+        "directory": "/home/kay/dev/nOS-Kernel",
+        "file": "src/C/Drivers/uart_mini.c"
+    },
+    {
+        "arguments": [
+            "clang",
+            "-c",
+            "--target=aarch64-none-elf",
+            "-g",
+            "-nostdlib",
+            "-fno-builtin",
+            "-nostartfiles",
+            "-ffreestanding",
+            "-w",
+            "-Iinclude",
+            "-o",
+            "build/objects/Memory/mmu.c.o",
+            "src/C/Memory/mmu.c"
+        ],
+        "directory": "/home/kay/dev/nOS-Kernel",
+        "file": "src/C/Memory/mmu.c"
+    },
+    {
+        "arguments": [
+            "clang",
+            "-c",
+            "--target=aarch64-none-elf",
+            "-g",
+            "-nostdlib",
+            "-fno-builtin",
+            "-nostartfiles",
+            "-ffreestanding",
+            "-w",
+            "-Iinclude",
+            "-o",
+            "build/objects/Processes/process.c.o",
+            "src/C/Processes/process.c"
+        ],
+        "directory": "/home/kay/dev/nOS-Kernel",
+        "file": "src/C/Processes/process.c"
+    },
+    {
+        "arguments": [
             "clang",
             "-c",
             "--target=aarch64-none-elf",
@@ -17,5 +327,100 @@
         ],
         "directory": "/home/kay/dev/nOS-Kernel",
         "file": "src/C/main.c"
+    },
+    {
+        "arguments": [
+            "clang",
+            "-c",
+            "--target=aarch64-none-elf",
+            "-g",
+            "-nostdlib",
+            "-fno-builtin",
+            "-nostartfiles",
+            "-ffreestanding",
+            "-w",
+            "-Iinclude",
+            "-o",
+            "build/objects/Drivers/uart.c.o",
+            "src/C/Drivers/uart.c"
+        ],
+        "directory": "/home/kay/dev/nOS-Kernel",
+        "file": "src/C/Drivers/uart.c"
+    },
+    {
+        "arguments": [
+            "clang",
+            "-c",
+            "--target=aarch64-none-elf",
+            "-g",
+            "-nostdlib",
+            "-fno-builtin",
+            "-nostartfiles",
+            "-ffreestanding",
+            "-w",
+            "-Iinclude",
+            "-o",
+            "build/objects/Libraries/mem.c.o",
+            "src/C/Libraries/mem.c"
+        ],
+        "directory": "/home/kay/dev/nOS-Kernel",
+        "file": "src/C/Libraries/mem.c"
+    },
+    {
+        "arguments": [
+            "clang",
+            "-c",
+            "--target=aarch64-none-elf",
+            "-g",
+            "-nostdlib",
+            "-fno-builtin",
+            "-nostartfiles",
+            "-ffreestanding",
+            "-w",
+            "-Iinclude",
+            "-o",
+            "build/objects/Processes/exceptions.c.o",
+            "src/C/Processes/exceptions.c"
+        ],
+        "directory": "/home/kay/dev/nOS-Kernel",
+        "file": "src/C/Processes/exceptions.c"
+    },
+    {
+        "arguments": [
+            "clang",
+            "-c",
+            "--target=aarch64-none-elf",
+            "-g",
+            "-nostdlib",
+            "-fno-builtin",
+            "-nostartfiles",
+            "-ffreestanding",
+            "-w",
+            "-Iinclude",
+            "-o",
+            "build/objects/process.asm.o",
+            "src/ASM/process.S"
+        ],
+        "directory": "/home/kay/dev/nOS-Kernel",
+        "file": "src/ASM/process.S"
+    },
+    {
+        "arguments": [
+            "clang",
+            "-c",
+            "--target=aarch64-none-elf",
+            "-g",
+            "-nostdlib",
+            "-fno-builtin",
+            "-nostartfiles",
+            "-ffreestanding",
+            "-w",
+            "-Iinclude",
+            "-o",
+            "build/objects/Memory/mm.c.o",
+            "src/C/Memory/mm.c"
+        ],
+        "directory": "/home/kay/dev/nOS-Kernel",
+        "file": "src/C/Memory/mm.c"
     }
 ]

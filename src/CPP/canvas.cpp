@@ -1,7 +1,7 @@
-#include "canvas.h"
+#include "Libraries/canvas.h"
 
 extern "C" {
-    #include "framebuffer.h"
+    #include "Drivers/framebuffer.h"
 }
 
 

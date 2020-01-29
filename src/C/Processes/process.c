@@ -1,7 +1,7 @@
-#include "process.h"
-#include "interrupts.h"
+#include "Processes/process.h"
+#include "Drivers/interrupts.h"
 #include "Memory/frame_allocator.h"
-#include "printx.h"
+#include "Libraries/printx.h"
 
 #define PR_OFFSET                       0xa00000
 #define PROCESS_TABLE_BASE              (PR_OFFSET + 16)

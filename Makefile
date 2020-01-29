@@ -62,7 +62,7 @@ build/kernel8.img: $(OBJ_FILES) $(HEADER_FILES)
 	@mkdir -p $(BIN_DIR)
 	@ld.lld -g -T linker.ld -o $(BIN_DIR)/kernel8.elf $(OBJ_FILES) 
 
-	#@$(OBJDUMP) -S --disassemble $(BIN_DIR)/kernel8.elf > $(BIN_DIR)/kernel8.dump
+	@$(OBJDUMP) -S --disassemble $(BIN_DIR)/kernel8.elf > $(BIN_DIR)/kernel8.dump
 	@$(OBJCOPY) --only-keep-debug $(BIN_DIR)/kernel8.elf build/kernel.sym
 	@$(OBJCOPY) --strip-debug $(BIN_DIR)/kernel8.elf
 	@$(OBJCOPY) $(BIN_DIR)/kernel8.elf -O binary build/kernel8.img

@@ -1,4 +1,4 @@
-#include "interrupts.h"
+#include "Drivers/interrupts.h"
 
 #define CORE_TIMER_IRQ      ((volatile uint32_t*)0x40000040)
 #define IRQ_BASE            0x3f00b200

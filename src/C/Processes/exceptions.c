@@ -1,7 +1,7 @@
-#include "printx.h"
+#include "Libraries/printx.h"
 #include "stdint.h"
-#include "timer.h"
-#include "process.h"
+#include "Drivers/timer.h"
+#include "Processes/process.h"
 
 enum Exception_State{
     Synchronouse = 0,
