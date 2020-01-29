@@ -1,3 +1,6 @@
+#ifndef __MMU__
+#define __MMU__
+
 #include "stdint.h"
 
 uint64_t* map_physical_to_virtual(uintptr_t address);
@@ -140,3 +143,5 @@ typedef union {
 
     uint64_t MandatoryReserved1Bits;
 } SCTLR_EL1;
+
+#endif /* __PAGE_TABLE__ */
