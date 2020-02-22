@@ -75,6 +75,6 @@ build: build/kernel8.img
 
 .PHONY : run
 run : build
-	qemu-system-aarch64 -S -gdb tcp::9000 -m 1G -M raspi3 -serial stdio -kernel build/kernel8.img -display none
+	qemu-system-aarch64 -S -gdb tcp::1234 -m 1G -M raspi3 -serial stdio -kernel build/kernel8.img -display none
 
 rebuild: clean build

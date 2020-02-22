@@ -9,9 +9,9 @@
             "type": "cppdbg",
             "request": "launch",
             "cwd": ".",
-            "miDebuggerPath": "/usr/local/bin/aarch64-elf-gdb",
+            "miDebuggerPath": "/usr/bin/aarch64-none-elf-gdb",
             "targetArchitecture": "arm",
-            "program": "${workspaceRoot}/build/bin/kernel.sym",
+            "program": "${workspaceRoot}/build/kernel.sym",
             "preLaunchTask": "run",
             "setupCommands": [
                 {
@@ -20,7 +20,7 @@
                     "ignoreFailures": true
                 },
             {
-                "text": "file ${workspaceRoot}/build/bin/kernel.sym"
+                "text": "file ${workspaceRoot}/build/kernel.sym"
             },
             {
                 "text": "target remote localhost:1234"

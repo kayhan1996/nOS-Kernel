@@ -4,32 +4,65 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Remote Build and Run",
+            "label": "build",
             "type": "shell",
-            "command": "make clean; bear make; make run",
+            "command": "make",
+            "options": {
+                "cwd": "${workspaceRoot}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "rebuild",
+            "type": "shell",
+            "command": "make rebuild",
+            "options": {
+                "cwd": "${workspaceRoot}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ]
+        },
+        {
+            "label": "clean",
+            "type": "shell",
+            "command": "make clean",
+            "options": {
+                "cwd": "${workspaceRoot}"
+            }
+        },
+        {
+            "label": "run",
+            "type": "shell",
+            "command": "make run",
+            "options": {
+                "cwd": "${workspaceRoot}"
+            },
             "isBackground": true,
-            "problemMatcher": {
-                "pattern": [
+            "problemMatcher":{
+                "pattern":[
                     {
-                        "regexp": ".",
+                        "regexp": ".*",
                         "file": 1,
                         "location": 2,
                         "message": 3
                     }
                 ],
                 "background": {
-                    "activeOnStart": false,
-                    "beginsPattern": {
-                        "regexp": "(.*?)"
+                    "activeOnStart": true,
+                    "beginsPattern":{
+                        "regexp": "qemu-system-aarch64*"
                     },
-                    "endsPattern": {
-                        "regexp": "qemu-system-aarch64"
+                    "endsPattern":{
+                        "regexp": "-d*"
                     }
                 }
-            },
-            "group": {
-                "kind": "build",
-                "isDefault": true
             }
         }
     ]
