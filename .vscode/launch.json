@@ -3,14 +3,44 @@
     // Hover to view descriptions of existing attributes.
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
-    "configurations": [
+    "configurations": [        
+        {
+            "name": "Debug",
+            "type": "cppdbg",
+            "request": "launch",
+            "cwd": ".",
+            "miDebuggerPath": "/usr/local/bin/aarch64-elf-gdb",
+            "targetArchitecture": "arm",
+            "program": "${workspaceRoot}/build/bin/kernel.sym",
+            "preLaunchTask": "run",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+            {
+                "text": "file ${workspaceRoot}/build/bin/kernel.sym"
+            },
+            {
+                "text": "target remote localhost:1234"
+            },
+            {
+                "text": "monitor reset init"
+            }
+                
+            ],
+            "osx": {
+                "miDebuggerPath": "/usr/local/bin/aarch64-elf-gdb"
+            }
+        },
         {
             "type": "gdb",
             "request": "attach",
-            "name": "Attach to QEMU",
-            "executable": "./build/kernel.sym",
-            "debugger_args": [],
-            "target": "localhost:9000",
+            "name": "Attach to gdbserver",
+            "executable": "./build/bin/kernel.sym",
+            "gdbpath": "aarch64-elf-gdb",
+            "target": "localhost:1234",
             "remote": true,
             "cwd": "${workspaceRoot}",
             "valuesFormatting": "parseText"

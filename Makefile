@@ -1,16 +1,15 @@
-CC = clang
-CC++ = clang++
-OBJDUMP = objdump
-OBJCOPY = objcopy
+CC = aarch64-none-elf-gcc
+CC++ = aarch64-none-elf-c++
+OBJDUMP = aarch64-none-elf-objdump
+OBJCOPY = aarch64-none-elf-objcopy
+LINKER = aarch64-none-elf-ld
 
-CPP_Flags =  --target=aarch64-none-elf \
-			 -g \
+CPP_Flags =  -g \
 			 -nostdlib -fno-builtin -nostartfiles -ffreestanding \
 			 -fno-exceptions -fno-rtti -fpermissive \
 			 -w
 
-C_Flags = --target=aarch64-none-elf \
-		  -g \
+C_Flags = -g \
 		  -nostdlib -fno-builtin -nostartfiles -ffreestanding\
 		  -w
 
@@ -60,7 +59,7 @@ HEADER_FILES += $(wildcard $(HEADER_DIR))
 
 build/kernel8.img: $(OBJ_FILES) $(HEADER_FILES)
 	@mkdir -p $(BIN_DIR)
-	@ld.lld -g -T linker.ld -o $(BIN_DIR)/kernel8.elf $(OBJ_FILES) 
+	@$(LINKER) -g -T linker.ld -o $(BIN_DIR)/kernel8.elf $(OBJ_FILES) 
 
 	@$(OBJDUMP) -S --disassemble $(BIN_DIR)/kernel8.elf > $(BIN_DIR)/kernel8.dump
 	@$(OBJCOPY) --only-keep-debug $(BIN_DIR)/kernel8.elf build/kernel.sym
