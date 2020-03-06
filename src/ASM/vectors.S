@@ -1,12 +1,53 @@
+#include "Processes/process.h"
+
 .macro  entry   label
 .align  7
     b   \label
 .endm
 
-.macro  save_registers
-    msr     SPSel, #0
+.align   11
+.globl  vectors
+vectors:
+    entry   exc_handle
+    entry   handle_irq_el1t
+    entry   exc_handle
+    entry   exc_handle
 
-    sub     sp, sp, #(8 * 34)
+    entry   exc_handle
+    entry   handle_irq_el1h
+    entry   exc_handle
+    entry   exc_handle
+
+    entry   exc_handle
+    entry   handle_irq_el0
+    entry   exc_handle
+    entry   exc_handle
+
+    entry   exc_handle
+    entry   exc_handle
+    entry   exc_handle
+    entry   exc_handle
+
+
+.macro  save_registers, el
+
+    .if \el==0
+        msr     SPSel, #0
+    .else
+        msr     SPSel, #1
+    .endif
+
+    sub     sp, sp, #(272)
+
+    //Save sp to current process control block context
+    stp     x0, x1, [sp, #-16]!     //Save temp
+    mov     x0, #CURRENT_PROCESS    //load Current
+    ldr     x0, [x0]                //Current[0]
+    mov     x1, sp
+    add     x1, x1, 16              //account for temps
+    str     x1, [x0, #0]            //Current[0]->context.sp = sp
+    ldp     x0, x1, [sp], #16     //Restore temp
+
     //store registers to PCB
     stp     x0, x1, [sp, #16 * 0]
     stp     x2, x3, [sp, #16 * 1]
@@ -23,19 +64,37 @@
     stp     x24, x25, [sp, #16 * 12]
     stp     x26, x27, [sp, #16 * 13]
     stp     x28, x29, [sp, #16 * 14]
+    str     x30, [sp, #16*15]
 
     mrs     x0, ELR_EL1
     mrs     x1, SPSR_EL1
-    mov     x2, sp
     
-    stp     x30, x0, [sp, #16 * 15]
-    stp     x1,  x2, [sp, #16 * 16]
+    stp     x0,  x1, [sp, #16 * 16]
 .endm
 
 .macro  load_registers
+    //load current process
+    mov     x0, #CURRENT_PROCESS    //load Current
+    ldr     x0, [x0]                //Current[0]
+    
+    //check if process is user or system and set appropriate SP
+    ldr     x1, [x0, #8]            //Current[0]->context.PSTATE
+    cmp     x1, #0x3c4
+    b.eq    1f
     msr     SPSel, #0
+    b       2f
+1:
+    msr     SPSel, #1
+2:
+    ldr     x1, [x0, #0]            
+    mov     sp, x1                  //$sp = Current[0]->context.sp
 
-    //store registers to PCB
+
+    //load registers from thread stack
+    ldp     x0,  x1, [sp, #16 * 16]
+    msr     ELR_EL1, x0
+    msr     SPSR_EL1, x1
+
     ldp     x0, x1, [sp, #16 * 0]
     ldp     x2, x3, [sp, #16 * 1]
     ldp     x4, x5, [sp, #16 * 2]
@@ -51,49 +110,38 @@
     ldp     x24, x25, [sp, #16 * 12]
     ldp     x26, x27, [sp, #16 * 13]
     ldp     x28, x29, [sp, #16 * 14]
+    ldr     x30, [sp, #16 * 15]
 
-    ldp     x30, x0, [sp, #16 * 15]
-    ldp     x1,  x2, [sp, #16 * 16]
-
-    msr     ELR_EL1, x0
-    msr     SPSR_EL1, x1
-    mov     sp, x2
-
-    add     sp, sp, #(8 * 34)
+    add     sp, sp, #(272)
 .endm
 
-.align   11
-.globl  vectors
-vectors:
-    entry   exc_handle
-    entry   handle_irq
-    entry   exc_handle
-    entry   exc_handle
 
-    entry   exc_handle
-    entry   exc_handle
-    entry   exc_handle
-    entry   exc_handle
-
-    entry   exc_handle
-    entry   handle_irq
-    entry   exc_handle
-    entry   exc_handle
-
-    entry   exc_handle
-    entry   exc_handle
-    entry   exc_handle
-    entry   exc_handle
     
 
 .globl  exc_handle
 exc_handle:
+    mrs x0, FAR_EL1
+    mrs x1, ESR_EL1
+    mrs x2, ELR_EL1
     b  error_handler
 
-handle_irq:
-    mov  x0, x0
-    save_registers
+handle_irq_el0:
+    mov x0, x0
+    save_registers 0
+    bl  exception_handler    
+    load_registers
+    eret
+
+handle_irq_el1t:
+    mov x0, x0
+    save_registers 1
     bl  exception_handler
     load_registers
     eret
 
+handle_irq_el1h:
+    mov x0, x0
+    save_registers 1
+    bl  exception_handler    
+    load_registers
+    eret

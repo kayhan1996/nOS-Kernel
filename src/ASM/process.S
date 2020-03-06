@@ -1,39 +1,30 @@
-
-.globl switch_context
-switch_context:
-    // save registers for old process
-    stp     x19, x20, [x0, #16 * 0]
-    stp     x21, x22, [x0, #16 * 1]
-    stp     x23, x24, [x0, #16 * 2]
-    stp     x25, x26, [x0, #16 * 3]
-    stp     x27, x28, [x0, #16 * 4]
-    stp     x29, x30, [x0, #16 * 5]
-
-    mrs     x10, ELR_EL1
-    mrs     x11, SPSR_EL1
-    mov     x12, sp
-
-    stp     x10, x11, [x0, #16 * 6]
-    str     x12, [x0, #16 * 7]
-
-    // load registers for new process
-    ldp     x10, x11, [x1, #16 * 6]
-    ldr     x12, [x1, #16 * 7]
-
-    msr     ELR_EL1, x10
-    msr     SPSR_EL1, x11
-    mov     sp, x12
-
-    ldp     x19, x20, [x1, #16 * 0]
-    ldp     x21, x22, [x1, #16 * 1]
-    ldp     x23, x24, [x1, #16 * 2]
-    ldp     x25, x26, [x1, #16 * 3]
-    ldp     x27, x28, [x1, #16 * 4]
-    ldp     x29, x30, [x1, #16 * 5]
-
+//void load_core(void *func, void *addr, uint64_t bytes);
+.globl load_core
+load_core:
+    ldr     w3, [x0], +4
+    str     x3, [x1], +4
+    subs    x2, x2, #4
+    cbnz    x2, load_core
     ret
 
-.globl init_process
-init_process:
-    mov     x0, x19
-    blr     x20
+//void load_thread(struct Process *proc, void *func, void *args);
+.globl load_thread
+load_thread:
+    proc .req x0
+    func .req x1
+    args .req x2
+    stack .req x3
+    state .req x4
+    
+    //load address of thread stack pointer
+    ldr     stack, [proc, #0]
+
+    //load process state PSTATE
+    ldr     state, [proc, #8]
+
+    //move thread context to stack to load at next context switch
+    str     args, [stack, #0]
+    stp     func, state, [stack, #16*16]   //save function to ELR and state to SPSR registers on return
+
+    //TODO: set link register (x30) to an thread exit function
+    ret

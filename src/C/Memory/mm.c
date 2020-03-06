@@ -1,6 +1,8 @@
 #include "Memory/mm.h"
 #include "Memory/frame_allocator.h"
 #include "Memory/kmalloc.h"
+#include "Memory/mmu.h"
+
 
 /* Finds the index of the frame in the AllPages array */
 int find_index(Frame *frame){
@@ -38,5 +40,6 @@ void init_memory(){
 	}
 
 	init_buddy();
-    init_kmalloc();
+  init_kmalloc();
+  init_mmu();
 }

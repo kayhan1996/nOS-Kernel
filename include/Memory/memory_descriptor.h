@@ -16,7 +16,12 @@ typedef struct memory_descriptor {
     Memory_Area bss;
     Memory_Area data;
     Memory_Area text;
-    Table_Desciptor page_table;
+    Table_Descriptor page_table;
 } Memory_Descriptor;
+
+Table_Descriptor *create_new_table(Memory_Descriptor *mem);
+Memory_Descriptor create_process_memory_descriptor();
+
+void display_table(Table_Descriptor *table);
 
 #endif /* __MEMORY_DESCRIPTOR__ */

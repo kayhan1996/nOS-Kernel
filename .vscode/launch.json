@@ -5,14 +5,30 @@
     "version": "0.2.0",
     "configurations": [        
         {
+            "type": "gdb",
+            "request": "attach",
+            "name": "Attach to Remote",
+            "gdbpath": "/usr/local/bin/aarch64-none-elf-gdb",
+            "executable": "${workspaceRoot}/build/kernel.sym",
+            "target": "192.168.1.100:9000",
+            "remote": true,
+            "cwd": "${workspaceRoot}",
+            "debugger_args": [
+                "-enable-pretty-printing"
+            ],
+            "valuesFormatting": "prettyPrinters",
+            "preLaunchTask": "remote run",
+            "postDebugTask": "remote kill"
+        },
+        {
             "name": "Debug",
             "type": "cppdbg",
             "request": "launch",
-            "cwd": ".",
-            "miDebuggerPath": "/usr/bin/aarch64-none-elf-gdb",
-            "targetArchitecture": "arm",
+            "cwd": "${workspaceRoot}",
+            "miDebuggerPath": "/usr/local/bin/aarch64-none-elf-gdb",
+            "targetArchitecture": "arm64",
             "program": "${workspaceRoot}/build/kernel.sym",
-            "preLaunchTask": "run",
+            "preLaunchTask": "remote run",
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",
@@ -23,7 +39,7 @@
                 "text": "file ${workspaceRoot}/build/kernel.sym"
             },
             {
-                "text": "target remote localhost:1234"
+                "text": "target remote 192.168.1.100:9000"
             },
             {
                 "text": "monitor reset init"
@@ -33,17 +49,6 @@
             "osx": {
                 "miDebuggerPath": "/usr/local/bin/aarch64-elf-gdb"
             }
-        },
-        {
-            "type": "gdb",
-            "request": "attach",
-            "name": "Attach to gdbserver",
-            "executable": "./build/bin/kernel.sym",
-            "gdbpath": "aarch64-elf-gdb",
-            "target": "localhost:1234",
-            "remote": true,
-            "cwd": "${workspaceRoot}",
-            "valuesFormatting": "parseText"
         }
     ]
 }

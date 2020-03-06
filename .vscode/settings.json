@@ -3,6 +3,7 @@
         "uart.h": "c",
         "type_traits": "cpp",
         "printx.h": "c",
-        "timer.h": "c"
+        "timer.h": "c",
+        "process.h": "c"
     }
 }

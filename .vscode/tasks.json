@@ -2,41 +2,10 @@
     // See https://go.microsoft.com/fwlink/?LinkId=733558
     // for the documentation about the tasks.json format
     "version": "2.0.0",
+    "options": {
+        "env": {}
+    },
     "tasks": [
-        {
-            "label": "build",
-            "type": "shell",
-            "command": "make",
-            "options": {
-                "cwd": "${workspaceRoot}"
-            },
-            "problemMatcher": [
-                "$gcc"
-            ],
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            }
-        },
-        {
-            "label": "rebuild",
-            "type": "shell",
-            "command": "make rebuild",
-            "options": {
-                "cwd": "${workspaceRoot}"
-            },
-            "problemMatcher": [
-                "$gcc"
-            ]
-        },
-        {
-            "label": "clean",
-            "type": "shell",
-            "command": "make clean",
-            "options": {
-                "cwd": "${workspaceRoot}"
-            }
-        },
         {
             "label": "run",
             "type": "shell",
@@ -64,6 +33,65 @@
                     }
                 }
             }
+        },
+        {
+            "label": "remote run",
+            "type": "shell",
+            "command": "./remote_build.sh",
+            "options": {
+                "cwd": "${workspaceRoot}"
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": true
+            },
+            "isBackground": true,
+            "problemMatcher": {
+                "pattern": [
+                    {
+                        "regexp": ".*",
+                        "file": 1,
+                        "location": 2,
+                        "message": 3
+                    }
+                ],
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": {
+                        "regexp": "qemu-system-aarch64*"
+                    },
+                    "endsPattern": {
+                        "regexp": "(-display)"
+                    }
+                }
+            }
+        },
+        {
+            "label": "remote kill",
+            "type": "shell",
+            "command": "ssh -p 15429 kay@192.168.1.100 'fuser -k 9000/tcp'",
+            "presentation": {
+                "echo": true,
+                "reveal": "silent",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            },
+            "problemMatcher": [
+                {
+                    "pattern":{
+                        "regexp": "^([^\\\\s].*)\\\\((\\\\d+,\\\\d+)\\\\):\\\\s*(.*)$",
+                        "file": 1,
+                        "location": 2,
+                        "message": 3
+                    }
+                }
+            ]
         }
     ]
 }

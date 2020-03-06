@@ -7,11 +7,13 @@ LINKER = aarch64-none-elf-ld
 CPP_Flags =  -g \
 			 -nostdlib -fno-builtin -nostartfiles -ffreestanding \
 			 -fno-exceptions -fno-rtti -fpermissive \
-			 -w
+			 -w \
+			 -fPIC
 
 C_Flags = -g \
 		  -nostdlib -fno-builtin -nostartfiles -ffreestanding\
-		  -w
+		  -w \
+			-fPIC
 
 BUILD_DIR = build/objects
 BIN_DIR = build/bin
@@ -75,6 +77,6 @@ build: build/kernel8.img
 
 .PHONY : run
 run : build
-	qemu-system-aarch64 -S -gdb tcp::1234 -m 1G -M raspi3 -serial stdio -kernel build/kernel8.img -display none
-
+	qemu-system-aarch64 -S -gdb tcp::9000 -m 1G -M raspi3 -serial stdio -kernel build/kernel8.img -display none -d mmu
+	
 rebuild: clean build

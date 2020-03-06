@@ -47,7 +47,7 @@ static inline Frame * find_buddy(Frame *frame){
 static inline void split_frame(Frame *frame){
 	Frame *buddy = frame + (1 << (--frame->order));
 	add_frame(buddy, buddy->order = frame->order);
-	printf("    >Buddy frame %ld\n", buddy->address/PAGE_SIZE);	
+	//printf("    >Buddy frame %ld\n", buddy->address/PAGE_SIZE);	
 }
 
 /* Allocates page frames of the given order, and returns the first frame */
@@ -63,17 +63,17 @@ Frame * allocate_page_frames(uint64_t order){
 	
 	frame->allocated = 1;
 
-	printf("Allocate frame %ld\n", (long)frame->address/PAGE_SIZE);
+	//printf("Allocate frame %ld\n", (long)frame->address/PAGE_SIZE);
 
 	return frame;
 }
 
 void free_page_frames(Frame *frame){
-	printf("Freeing %ld\n", frame->address/PAGE_SIZE);
+	//printf("Freeing %ld\n", frame->address/PAGE_SIZE);
 	frame->allocated = 0;
 	Frame *buddy = find_buddy(frame);
 	while(frame->order < MAX_ORDER-1 && frame->order == buddy->order && frame->allocated == 0 && buddy->allocated == 0){
-		printf("    Merging %ld & %ld\n", frame->address/PAGE_SIZE, buddy->address/PAGE_SIZE);
+		//printf("    Merging %ld & %ld\n", frame->address/PAGE_SIZE, buddy->address/PAGE_SIZE);
 		frame = merge_frames(frame, buddy);
 		buddy = find_buddy(frame);
 	}
