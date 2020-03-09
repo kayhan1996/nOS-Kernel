@@ -42,6 +42,9 @@ vectors:
     //Save sp to current process control block context
     stp     x0, x1, [sp, #-16]!     //Save temp
     mov     x0, #CURRENT_PROCESS    //load Current
+    mov     x1, #0xFFFFFF80
+    lsl     x1, x1, #32
+    orr     x0, x0, x1
     ldr     x0, [x0]                //Current[0]
     mov     x1, sp
     add     x1, x1, 16              //account for temps
@@ -75,6 +78,9 @@ vectors:
 .macro  load_registers
     //load current process
     mov     x0, #CURRENT_PROCESS    //load Current
+    mov     x1, #0xFFFFFF80
+    lsl     x1, x1, #32
+    orr     x0, x0, x1
     ldr     x0, [x0]                //Current[0]
     
     //check if process is user or system and set appropriate SP
@@ -89,6 +95,9 @@ vectors:
     ldr     x1, [x0, #0]            
     mov     sp, x1                  //$sp = Current[0]->context.sp
 
+    //ldr     x1, [x0, (8*6)]
+    //msr     TTBR0_EL1, x1
+    //isb
 
     //load registers from thread stack
     ldp     x0,  x1, [sp, #16 * 16]
@@ -115,9 +124,6 @@ vectors:
     add     sp, sp, #(272)
 .endm
 
-
-    
-
 .globl  exc_handle
 exc_handle:
     mrs x0, FAR_EL1
@@ -126,22 +132,23 @@ exc_handle:
     b  error_handler
 
 handle_irq_el0:
-    mov x0, x0
     save_registers 0
-    bl  exception_handler    
+    msr SPSel, #1
+    bl  exception_handler
     load_registers
+    msr daifclr, #2
     eret
 
 handle_irq_el1t:
-    mov x0, x0
     save_registers 1
     bl  exception_handler
     load_registers
+    msr daifclr, #2
     eret
 
 handle_irq_el1h:
-    mov x0, x0
     save_registers 1
     bl  exception_handler    
     load_registers
+    msr daifclr, #2
     eret

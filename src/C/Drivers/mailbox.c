@@ -1,6 +1,6 @@
 #include "Drivers/mailbox.h"
+#include "Drivers/peripherals.h"
 
-#define MAILBOX_BASE        0x3F00B880
 #define STATUS              ((volatile uint32_t*)(MAILBOX_BASE+0x18))
 #define READ                ((volatile uint32_t*)(MAILBOX_BASE+0x00))
 #define WRITE               ((volatile uint32_t*)(MAILBOX_BASE+0x20))

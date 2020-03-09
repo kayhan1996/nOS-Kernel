@@ -1,7 +1,8 @@
 #include "Drivers/interrupts.h"
+#include "Drivers/peripherals.h"
 
-#define CORE_TIMER_IRQ      ((volatile uint32_t*)0x40000040)
-#define IRQ_BASE            0x3f00b200
+#define CORE_TIMER_IRQ      ((volatile uint32_t *)(SYSTEM_BASE + 0x40000040))
+#define IRQ_BASE            (PERIPHERAL_BASE + 0xb200)
 #define System_Timer        (1 << 1)
 #define ROUTE_IRQ_TO_CORE0  (1 << 1)
 

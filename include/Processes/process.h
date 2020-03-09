@@ -9,24 +9,23 @@
 
 #else   //C only
 #include <stdint.h>
+#include "Memory/mmu.h"
 
 #define MAX_PROCESSES           32
 
 enum PSTATES { User = 0x0, System = 0x3c4 };
 
-struct Context{
-    uint64_t sp;
-    uint64_t PSTATE;
-};
-
 struct Process {
-    struct Context context;
+    struct Context {
+        uint64_t sp;
+        uint64_t PSTATE;
+    } context;
     uint64_t *func;
     uint64_t *args;
     uint64_t pid;
     uint64_t count;
+    Table_Descriptor *memory;
 };
-
 
 void init_process_manager();
 void create_process(void *fn, void *args);

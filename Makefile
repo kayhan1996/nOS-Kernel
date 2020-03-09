@@ -59,7 +59,7 @@ OBJ_FILES += $(CPP_FILES:$(CPP_SRC_DIR)/%.cpp=$(BUILD_DIR)/%.cpp.o)
 
 HEADER_FILES += $(wildcard $(HEADER_DIR))
 
-build/kernel8.img: $(OBJ_FILES) $(HEADER_FILES)
+build/kernel8.img: $(OBJ_FILES) $(HEADER_FILES) Makefile linker.ld
 	@mkdir -p $(BIN_DIR)
 	@$(LINKER) -g -T linker.ld -o $(BIN_DIR)/kernel8.elf $(OBJ_FILES) 
 

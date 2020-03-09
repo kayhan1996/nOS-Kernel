@@ -1,9 +1,9 @@
 //void load_core(void *func, void *addr, uint64_t bytes);
 .globl load_core
 load_core:
-    ldr     w3, [x0], +4
-    str     x3, [x1], +4
-    subs    x2, x2, #4
+    ldr     x3, [x0], +8
+    str     x3, [x1], +8
+    subs    x2, x2, #8
     cbnz    x2, load_core
     ret
 

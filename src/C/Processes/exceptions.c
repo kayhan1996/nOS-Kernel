@@ -1,9 +1,8 @@
 #include "Drivers/timer.h"
 #include "Libraries/printx.h"
-#include "Processes/process.h"
-#include "stdint.h"
 #include "Libraries/utils.h"
-
+#include "Processes/process.h"
+#include "Processes/exceptions.h"
 
 enum Exception_State { Synchronouse = 0, IRQ = 1, FIQ = 2, SError = 3 };
 
@@ -12,7 +11,9 @@ void timer_tick() {
     schedule();
 }
 
-void exception_handler() { timer_tick(); }
+void exception_handler() {
+    timer_tick();
+}
 
 void mmu_fault(uint64_t iss, uint64_t far) {
     switch (iss) {
@@ -65,13 +66,16 @@ void mmu_fault(uint64_t iss, uint64_t far) {
     default:
         break;
     }
-    printf("Error occured while accessing address 0x%x\n", far);
 }
 
 void error_handler(uint64_t FAR, uint64_t ESR, uint64_t ELR) {
     uint32_t ec = GET_BITS(ESR, 31, 26);
 
     switch (ec) {
+    case 0b0100001:
+        printf("Exception Class: INSTRUCTION ABORT FROM SAME LEVEL/ MMU FAULT\n");
+        mmu_fault(GET_BITS(ESR, 5, 0), FAR);
+        break;
     case 0b0100100:
         printf("Exception Class: DATA ABORT FROM LOWER EXCEPTION LEVEL/ MMU FAULT\n");
         mmu_fault(GET_BITS(ESR, 5, 0), FAR);
@@ -86,6 +90,7 @@ void error_handler(uint64_t FAR, uint64_t ESR, uint64_t ELR) {
     }
 
     printf("Exception occurred at instruction 0x%x\n", ELR);
+    printf("Error occured while accessing address 0x%x\n", FAR);
 
     while (1) {
     };

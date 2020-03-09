@@ -17,19 +17,15 @@ hang:
     b hang
 
 _start_core0:
-    //Setup C environment prereqs
-
-    //zero out BSS section
-    adr     x0, __bss_start //Defined in linker.ld
-    adr     x1, __bss_end   //Defined in linker.ld
-    sub     x1, x1, x0
-    bl  memzero
-
     //set stack pointers
-    mov     x1, INIT_SP_EL0
+    mov     x0, #0xFFFFFF8000000000
+    mov     x1, #INIT_SP_EL0
+    orr     x1, x1, x0
     msr     SP_EL0, x1
     //seperate stack pointer for exceptions in EL1
+    mov     x0, #0xFFFFFF8000000000
     mov     x1, INIT_SP
+    orr     x1, x1, x0
     msr     SP_EL1, x1 
 
     //Setup Hardware
@@ -55,16 +51,30 @@ _start_core0:
     movk    x2, #0x30d0, lsl #16
     msr     sctlr_el1, x2
     // Setup exception table
-    adr     x2, vectors
-    msr     vbar_el1, x2
+    
+    mov     x0, #0xFFFFFF8000000000
+    adr     x1, vectors
+    orr     x1, x1, x0
+    msr     vbar_el1, x1
+
     // change execution level to EL1
     mov     x2, #0x3c4
     msr     spsr_el2, x2
     adr     x2, C_Kernel
     msr     elr_el2, x2
     eret
-    
-C_Kernel:   
+
+C_Kernel:
+    // setup virtual memory map for high kernel
+    bl      create_identity_map
+
+    /* Setup C environment prereqs */
+    //zero out BSS section
+    adr     x0, __bss_start //Defined in linker.ld
+    adr     x1, __bss_end   //Defined in linker.ld
+    sub     x1, x1, x0
+    bl  memzero
+
     msr     SPSel, #1
     bl      kernel_main     //jump to main function
     b       hang            //main should never return
@@ -86,3 +96,4 @@ memzero:
 	subs    x1, x1, #8
 	b.gt    memzero
 	ret
+

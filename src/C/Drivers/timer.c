@@ -1,7 +1,8 @@
 #include "Drivers/timer.h"
+#include "Drivers/peripherals.h"
 #include "Libraries/printx.h"
 
-#define TIMER_BASE          0x3f003000
+#define TIMER_BASE          (PERIPHERAL_BASE + 0x3000)
 #define TIMER_M1            (1 << 1)
 struct SYSTEM_TIMER {
     volatile uint32_t CS;

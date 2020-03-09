@@ -2,7 +2,7 @@ ENTRY(_start)
 
 SECTIONS
 {
-	. = 0x80000;
+	. = 0xFFFFFF8000080000;
 	__start = .;
 
 	__text_start = .;
@@ -35,6 +35,24 @@ SECTIONS
 	}
 	. = ALIGN(4096);
 	__bss_end = .;
+
+	__block_table_start = .;
+	. += 0x1000 * 2;
+	__block_table_end = .;
+
+	__table_table_start = .;
+	. += 0x1000;
+	__table_table_end = .;
+
+	. = ALIGN(4096);	
+
+	__user_start__ = .;
+	.user :
+	{
+		KEEP(*(.user));
+	}
+	. = ALIGN(4096);
+	__user_end__ = .;
 
 	__end = .;
 

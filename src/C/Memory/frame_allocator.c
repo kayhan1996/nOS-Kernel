@@ -63,9 +63,11 @@ Frame * allocate_page_frames(uint64_t order){
 	
 	frame->allocated = 1;
 
-	//printf("Allocate frame %ld\n", (long)frame->address/PAGE_SIZE);
+    frame->address += 0xFFFFFF8000000000;
 
-	return frame;
+    //printf("Allocate frame %ld\n", (long)frame->address/PAGE_SIZE);
+
+    return frame;
 }
 
 void free_page_frames(Frame *frame){

@@ -4,7 +4,9 @@
 #ifndef __ALLOCATOR_H__
 #define __ALLOCATOR_H__
 
-#define MAX_ORDER				11
+#define MAX_ORDER   				11
+#define KERNEL_ADDRESS(addr)        ((uint64_t)(addr) + 0xFFFFFF8000000000)
+#define PHYSICAL_ADDRESS(addr)      ((uint64_t)(addr) - 0xFFFFFF8000000000)
 
 struct LinkedList buckets[MAX_ORDER];
 

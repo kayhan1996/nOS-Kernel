@@ -39,7 +39,6 @@ void init_memory(){
 		address += PAGE_SIZE;
 	}
 
-	init_buddy();
-  init_kmalloc();
-  init_mmu();
+    init_buddy();
+    init_kmalloc();
 }

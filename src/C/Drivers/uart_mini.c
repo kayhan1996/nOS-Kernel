@@ -1,7 +1,8 @@
 #include "Drivers/uart_mini.h"
 #include "Drivers/asm.h"
+#include "Drivers/peripherals.h"
 
-#define BASE                0x3f215000
+#define BASE                (GPIO_BASE + 0x15000)
 #define IRQ_STATUS          ((volatile uint32_t*)(BASE+0x00))
 #define ENABLE              ((volatile uint32_t*)(BASE+0x04))
 #define DATA                ((volatile uint32_t*)(BASE+0x40))
@@ -13,11 +14,6 @@
 #define MODEM_STATUS        ((volatile uint32_t*)(BASE+0x58))
 #define EXTRA_CONTROL       ((volatile uint32_t*)(BASE+0x60))
 #define BAUDRATE            ((volatile uint32_t*)(BASE+0x68))
-
-#define IO_BASE             0x3f000000
-#define GPFSEL1             ((volatile uint32_t*)(IO_BASE+0x00200004))
-#define GPPUD               ((volatile uint32_t*)(IO_BASE+0x00200094))
-#define GPPUDCLK0           ((volatile uint32_t*)(IO_BASE+0x00200098))
 
 #define TX_EMPTY            0x20
 #define RX_READY            0x00

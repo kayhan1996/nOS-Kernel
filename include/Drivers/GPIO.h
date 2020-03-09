@@ -2,6 +2,7 @@
 #define GPIO_H
 
 #include "stdint.h"
+#include "Drivers/peripherals.h"
 
 struct GPIO_REG
 {
@@ -31,7 +32,6 @@ struct GPIO_REG
     volatile uint32_t  PUDCLK1; //0x9c
 };
 
-#define GPIO_BASE           0x3F200000
 #define GP                  ((struct GPIO_REG*)GPIO_BASE)
 
 #endif

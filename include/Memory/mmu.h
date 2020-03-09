@@ -64,15 +64,15 @@ typedef enum ca {
 
 typedef union {
     struct __attribute__((__packed__)) {
-        Type type : 2;
-        uint64_t ignored : 10;
-        uint64_t address : 36;
-        uint64_t reserved : 4;
-        uint64_t software_reserved : 7;
-        uint64_t PXNTable : 1;
-        uint64_t XNTable : 1;
-        Access_Permissions APTable : 2;
-        uint64_t NSTable : 1;
+        Type type : 2;                          //[1:0]
+        uint64_t ignored : 10;                  //[11:2]
+        uint64_t address : 36;                  //[12:47]
+        uint64_t reserved : 4;                  //[51:48]
+        uint64_t software_reserved : 7;         //[58:52]
+        uint64_t PXNTable : 1;                  //[59]
+        uint64_t XNTable : 1;                   //[60]
+        Access_Permissions APTable : 2;         //[62:61]
+        uint64_t NSTable : 1;                   //[63]
     };
     uint64_t data;
 } Table_Descriptor;
@@ -167,7 +167,7 @@ typedef union {
     uint64_t MandatoryReserved1Bits;
 } SCTLR_EL1;
 
-__attribute__((aligned(4096))) Block_Descriptor T0_L2[512];
+__attribute__((aligned(4096))) Block_Descriptor T0_L2[1024];
 __attribute__((aligned(4096))) Table_Descriptor T0_L1[512];
 
 __attribute__((aligned(4096))) Block_Descriptor T1_L3[512];

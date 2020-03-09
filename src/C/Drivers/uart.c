@@ -3,15 +3,11 @@
 #include "Drivers/mailbox.h"
 #include "Drivers/asm.h"
 #include "Drivers/GPIO.h"
+#include "Drivers/peripherals.h"
 
-#define UART0_BASE		0x3f201000
+#define UART0_BASE 		(GPIO_BASE + 0x1000)
 #define RX_EMPTY		(1 << 4)
 #define TX_FULL			(1 << 5)
-
-#define GPFSEL1			 ((volatile uint32_t*)0x3f200004)
-#define GPPUD			 ((volatile uint32_t*)0x3f200094)
-#define GPPUDCLK0    	 ((volatile uint32_t*)0x3f200098)
-
 
 struct UART0{				//offset
 	volatile uint32_t DATA;	//0x00

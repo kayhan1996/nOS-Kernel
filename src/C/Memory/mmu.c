@@ -10,58 +10,49 @@ void create_TTBR0_tables() {
         T0_L2[base].AF = 1;
         T0_L2[base].memory_attributes = Normal;
         T0_L2[base].SH = Inner;
-
-        if (base < 2) {
-            T0_L2[base].AP = AP_NA_RW;
-        } else{
-            T0_L2[base].AP = AP_RW_RW;
-        }
     }
 
     for (; base < VRAM_MAX; base++) {
         T0_L2[base].type = Block;
-        T0_L2[base].address = base << Block_Shift_2MB;
         T0_L2[base].AF = 1;
         T0_L2[base].memory_attributes = Normal_nC;
         T0_L2[base].AP = AP_RW_RW;
+        T0_L2[base].address = base << Block_Shift_2MB;
     }
 
-    for (; base <= PERIPHERALS_MAX; base++) {
+    for (; base < 512; base++) {
         T0_L2[base].type = Block;
-        T0_L2[base].address = base << Block_Shift_2MB;
         T0_L2[base].AF = 1;
         T0_L2[base].memory_attributes = Device_nGnRE;
         T0_L2[base].AP = AP_RW_RW;
+        T0_L2[base].address = base << Block_Shift_2MB;
     }
-    /* Mailbox at 1024MB to 1026MB */
-    T0_L2[512].type = Block;
-    T0_L2[512].address = base << Block_Shift_2MB;
-    T0_L2[512].AF = 1;
-    T0_L2[512].memory_attributes = Device_nGnRnE;
-    T0_L2[512].AP = AP_RW_RW;
 
-    /* Set remaining entries to empty */
-    // To test MMU is working, move all entries above 1026 to point to
-    // 0x0000
-    for (; base < 1024; base++) {
-        if (base > 512) {
-            T0_L2[base] = (Block_Descriptor){.type = Block,
-                                             .address = 0 << Block_Shift_2MB,
-                                             .AF = 1,
-                                             .memory_attributes = Normal,
-                                             .SH = Inner,
-                                             .AP = AP_RW_RW};
-        }
-        T0_L2[base] = (Block_Descriptor){0};
-    }
+    /* Mailbox at 1024MB to 1026MB */
+    T0_L2[base].type = Block;
+    T0_L2[base].address = 512 << Block_Shift_2MB;
+    T0_L2[base].AF = 1;
+    T0_L2[base].memory_attributes = Device_nGnRnE;
+    T0_L2[base].AP = AP_RW_RW;
+
+    // base++;
+
+    // /* Set remaining entries to empty */
+    // for (; base < 1024; base++) {
+    //     T0_L2[base] = (Block_Descriptor){0};
+    // }
 
     /* TTBR0_Level1 -> TTBR0_Level2 */
     T0_L1[0].type = Table;
-    T0_L1[0].address = (uintptr_t)(T0_L2) >> Table_Shift_4kB;
-    // T0_L1[0].NS = 1;
     T0_L1[0].APTable = 0;
+    T0_L1[0].address = (uintptr_t)(&T0_L2[0]) >> Table_Shift_4kB;
 
-    display_table(&T0_L1[0]);
+    T0_L1[1].type = Table;
+    T0_L1[1].APTable = 0;
+    T0_L1[1].address = (uintptr_t)(&T0_L2[512]) >> Table_Shift_4kB;
+    // T0_L1[0].NS = 1;
+
+    //display_table(&T0_L1[0]);
 }
 
 void create_TTBR1_tables() {
@@ -92,7 +83,7 @@ void create_TTBR1_tables() {
     T1_L1[0].NSTable = 1;
     T1_L1[0].APTable = APTable_RW_RW;
 
-    display_table(T1_L1);
+    //display_table(T1_L1);
 }
 
 void init_mmu() {
@@ -128,7 +119,7 @@ void init_mmu() {
     translation_control.IPS = IPS_32;
 
     asm volatile("msr ttbr0_el1, %0" ::"r"(&T0_L1));
-    asm volatile("msr ttbr1_el1, %0" ::"r"(&T1_L1));
+    asm volatile("msr ttbr1_el1, %0" ::"r"(&T0_L1));
     asm volatile("msr tcr_el1, %0" ::"r"(translation_control));
     asm volatile("isb");
 
@@ -142,25 +133,4 @@ void init_mmu() {
     system_control.enable_instruction_cache = 1;
     asm volatile("msr sctlr_el1, %0" ::"r"(system_control));
     asm volatile("isb");
-}
-
-uint64_t *map_physical_to_virtual(uintptr_t address) {
-    uint64_t *vaddr = 0;
-    int i = 0;
-    for (; i < 512; i++) {
-        if (T1_L3[i].data == 0) {
-            T1_L3[i].type = 3;
-            T1_L3[i].address = address << Block_Shift_4kB;
-            T1_L3[i].AF = 1;
-            T1_L3[i].memory_attributes = Normal;
-            T1_L3[i].SH = Inner;
-            break;
-        }
-    }
-
-    uint64_t base_address = 0xFFFFFF8000000000; // base address of TTBR1
-    vaddr = base_address;                       // offset to correct page table
-    asm volatile("dmb sy" ::: "memory");
-
-    return vaddr;
 }
