@@ -5,6 +5,9 @@
         "printx.h": "c",
         "timer.h": "c",
         "process.h": "c",
-        "mailbox.h": "c"
+        "mailbox.h": "c",
+        "*.tcc": "cpp",
+        "gpio.h": "c",
+        "peripherals.h": "c"
     }
 }

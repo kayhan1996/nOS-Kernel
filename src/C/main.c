@@ -37,7 +37,6 @@ void kernel_main() {
     init_printf(0, putc);
     printf("Kernel Program Started.\n");
 
-
     enable_interrupt_controller();
     init_arm_timer(3000000);
     init_memory();

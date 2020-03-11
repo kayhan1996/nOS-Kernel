@@ -43,16 +43,22 @@ void init_uart(){
     message[7] = 0;           // end tag
     call_mailbox(message, 8);
 
-	register uint32_t address;
-	address = GP->FSEL1;
-    address &= ~((7<<12)|(7<<15));	//set pins
-    address |=(4<<12)|(4<<15);		//alt0 mode
-    GP->FSEL1 = address;
-    GP->PUD = 0;            
-    delay(150);
-    GP->PUDCLK0 = (1<<14)|(1<<15);
-    delay(150);
-    GP->PUDCLK0 = 0;        
+	// register uint32_t address;
+	// address = GPIO->FSEL1;
+    // address &= ~((7<<12)|(7<<15));	//set pins
+    // address |=(4<<12)|(4<<15);		//alt0 mode
+    // GPIO->FSEL1 = address;
+
+    // GPIO->PUD = 0;            
+    // delay(150);
+    // GPIO->PUDCLK0 = (1<<14)|(1<<15);
+    // delay(150);
+    // GPIO->PUDCLK0 = 0;
+
+	GPIO_set_function(7, Alt0);
+	GPIO_set_function(15, Alt0);
+	GPIO_set_pull_mode(7, Off);
+	GPIO_set_pull_mode(15, Off);   
 
 	PL011->ICR = 0x7FF;
 	PL011->IBRD = 2;

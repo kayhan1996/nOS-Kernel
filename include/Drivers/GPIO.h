@@ -32,6 +32,26 @@ struct GPIO_REG
     volatile uint32_t  PUDCLK1; //0x9c
 };
 
-#define GP                  ((struct GPIO_REG*)GPIO_BASE)
+enum GPIOFunc {
+    Input = 0b000,
+    Output = 0b001,
+    Alt0 = 0b100,
+    Alt1 = 0b101,
+    Alt2 = 0b110,
+    Alt3 = 0b111,
+    Alt4 = 0b011,
+    Alt5 = 0b010
+};
+
+enum GPIOPullMode {
+    Off = 0b00,
+    Down = 0b01,
+    Up = 0b10
+};
+
+#define GPIO         ((struct GPIO_REG*)GPIO_BASE)
+
+int GPIO_set_function(int pin, enum GPIOFunc func);
+int GPIO_set_pull_mode(int pin, enum GPIOPullMode mode);
 
 #endif

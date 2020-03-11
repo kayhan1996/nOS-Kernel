@@ -77,6 +77,6 @@ build: build/kernel8.img
 
 .PHONY : run
 run : build
-	qemu-system-aarch64 -S -gdb tcp::9000 -m 1G -M raspi3 -serial stdio -kernel build/kernel8.img -display none -d mmu
+	qemu-system-aarch64 -S -gdb tcp::9000 -m 1G -M raspi3 -serial stdio -kernel build/kernel8.img -drive file=/home/kay/hdd.img,format=raw,if=sd -display none -d mmu
 	
 rebuild: clean build
