@@ -9,26 +9,25 @@
             "request": "attach",
             "name": "Attach to Remote",
             "gdbpath": "/usr/local/bin/aarch64-none-elf-gdb",
-            "executable": "${workspaceRoot}/build/kernel.sym",
-            "target": "192.168.1.100:9000",
+            "target": "192.168.1.141:3333",
             "remote": true,
             "cwd": "${workspaceRoot}",
+            "executable": "build/bin/kernel8.elf",
             "debugger_args": [
                 "-enable-pretty-printing"
             ],
-            "valuesFormatting": "prettyPrinters",
-            "preLaunchTask": "remote run",
-            "postDebugTask": "remote kill"
+            "valuesFormatting": "prettyPrinters"
         },
         {
-            "name": "Debug",
+            "name": "Hardware Debug",
             "type": "cppdbg",
             "request": "launch",
             "cwd": "${workspaceRoot}",
             "miDebuggerPath": "/usr/local/bin/aarch64-none-elf-gdb",
             "targetArchitecture": "arm64",
-            "program": "${workspaceRoot}/build/kernel.sym",
-            "preLaunchTask": "remote run",
+            "program": "${workspaceRoot}/build/bin/kernel8.elf",
+            "stopAtEntry": true,
+            "launchCompleteCommand": "exec-run",
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",
@@ -36,13 +35,44 @@
                     "ignoreFailures": true
                 },
             {
-                "text": "file ${workspaceRoot}/build/kernel.sym"
+                "text": "file ${workspaceRoot}/build/bin/kernel8.elf",
+                "ignoreFailures": true
             },
             {
-                "text": "target remote 192.168.1.100:9000"
+                "text": "target remote 192.168.1.141:3333",
+                "ignoreFailures": true
             },
             {
-                "text": "monitor reset init"
+                "text": "monitor reset halt",
+                "ignoreFailures": true
+            },
+            {
+                "text": "set remote hardware-breakpoint-limit 6",
+                "ignoreFailures": true
+            },
+            {
+                "text": "set remote hardware-watchpoint-limit 4",
+                "ignoreFailures": true
+            },
+            {
+                "text": "load",
+                "ignoreFailures": true
+            },
+            {
+                "text": "monitor step 0x80000",
+                "ignoreFailures": true
+            },
+            {
+                "text": "stepi",
+                "ignoreFailures": true
+            },
+            {
+                "text": "hbreak kernel_main",
+                "ignoreFailures": true
+            },
+            {
+                "text": "continue",
+                "ignoreFailures": true
             }
                 
             ],

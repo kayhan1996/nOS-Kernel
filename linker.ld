@@ -6,7 +6,7 @@ SECTIONS
 	__start = .;
 
 	__text_start = .;
-	.text : {
+	.text : AT(0x80000) {
 		KEEP(*(.text.boot))
 		*(.text)
 	}
