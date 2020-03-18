@@ -35,6 +35,7 @@ void test_process(char *str) {
 void kernel_main() {
     init_uart();
     init_printf(0, putc);
+    printf("\033[2J\033[H");
     printf("Kernel Program Started.\n");
 
 

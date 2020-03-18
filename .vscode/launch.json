@@ -28,12 +28,16 @@
             "program": "${workspaceRoot}/build/bin/kernel8.elf",
             "stopAtEntry": true,
             "launchCompleteCommand": "exec-run",
+            "preLaunchTask": "make",
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",
                     "text": "-enable-pretty-printing",
                     "ignoreFailures": true
                 },
+            {
+                "text": "set confirm off"
+            },
             {
                 "text": "file ${workspaceRoot}/build/bin/kernel8.elf",
                 "ignoreFailures": true
