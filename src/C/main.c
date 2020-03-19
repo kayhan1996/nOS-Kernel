@@ -2,6 +2,7 @@
 #include "Drivers/interrupts.h"
 #include "Drivers/timer.h"
 #include "Drivers/uart.h"
+#include "Drivers/emmc.h"
 
 #include "Memory/kmalloc.h"
 #include "Memory/memory_descriptor.h"
@@ -36,6 +37,7 @@ void kernel_main() {
     init_uart();
     init_printf(0, putc);
     printf("Kernel Program Started.\n");
+    init_emmc();
 
     enable_interrupt_controller();
     init_arm_timer(3000000);

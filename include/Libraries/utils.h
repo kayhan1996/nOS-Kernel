@@ -4,5 +4,6 @@
 /*Retrieves bits [a:b] from x*/
 #define GET_BITS(x, a, b) ((x >> b) & ((1 << (a - b + 1)) - 1))
 
+extern void delay(long long cycles);
 
 #endif /*__UTILS_H__*/
