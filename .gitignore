@@ -5,3 +5,4 @@
 /.*
 kernel.sym
 compile_commands.json
+!.gdbinit

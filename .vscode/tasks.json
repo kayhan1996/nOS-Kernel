@@ -7,6 +7,11 @@
     },
     "tasks": [
         {
+            "label": "make",
+            "type": "shell",
+            "command": "make build"
+        },
+        {
             "label": "run",
             "type": "shell",
             "command": "make run",

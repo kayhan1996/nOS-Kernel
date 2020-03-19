@@ -160,8 +160,8 @@ Table_Descriptor *create_new_table(Memory_Descriptor *mem) {
 
     /* Set virtual memory User space tables */
     asm volatile("msr ttbr0_el1, %0" ::"r"(PHYSICAL_ADDRESS(Table)));
-    asm volatile("isb");
-    asm volatile("dmb sy" ::: "memory");
+    asm volatile("tlbi vmalle1is");
+    asm volatile("dsb ish" ::: "memory");
 
     return Table;
 }
