@@ -38,16 +38,23 @@ void kernel_main() {
     init_printf(0, putc);
     printf("\033[2J\033[H");
     printf("Kernel Program Started.\n");
-    init_emmc();
 
+    printf("%08x", 4);
+
+    if(init_emmc() != 0) return;
+
+    for(int i = 0; i < 10; i++){
+        read_emmc(0x0);
+    }
+    
     enable_interrupt_controller();
     init_arm_timer(3000000);
     init_memory();
 
     init_process_manager();
 
-    create_process(test_process, 0xDEAD10CC);
-    create_process(test_process, 0xFFFFFFFFFF);
+    //create_process(test_process, 0xDEAD10CC);
+    //create_process(test_process, 0xFFFFFFFFFF);
 
     enable_irq();
 
