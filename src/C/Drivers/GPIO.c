@@ -1,4 +1,5 @@
 #include <Drivers/GPIO.h>
+#include <Drivers/timer.h>
 #include <Libraries/types.h>
 
 /*  Selects the function of a pin using either general purpose IO

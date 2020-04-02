@@ -4,9 +4,12 @@
 
 #define SYSTEM_BASE     0xFFFFFF8000000000
 #define PERIPHERAL_BASE (SYSTEM_BASE + 0x3F000000)
+
+#define MAILBOX_BASE    (PERIPHERAL_BASE + 0xB880)
+#define TIMER_BASE      (PERIPHERAL_BASE + 0x3000)  //System timer
 #define GPIO_BASE       (PERIPHERAL_BASE + 0x200000)
 #define EMMC_BASE       (PERIPHERAL_BASE + 0x300000)
-#define MAILBOX_BASE    (PERIPHERAL_BASE + 0xB880)
+
 
 #define GPFSEL1         ((volatile uint32_t *)(GPIO_BASE + 0x04))
 #define GPPUD           ((volatile uint32_t *)(GPIO_BASE + 0x94))

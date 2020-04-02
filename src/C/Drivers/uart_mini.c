@@ -1,6 +1,7 @@
 #include "Drivers/uart_mini.h"
 #include "Drivers/asm.h"
 #include "Drivers/peripherals.h"
+#include "Drivers/timer.h"
 
 #define BASE                (GPIO_BASE + 0x15000)
 #define IRQ_STATUS          ((volatile uint32_t*)(BASE+0x00))

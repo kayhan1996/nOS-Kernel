@@ -1,6 +1,7 @@
 #include <Drivers/GPIO.h>
 #include <Drivers/emmc.h>
 #include <Drivers/peripherals.h>
+#include <Drivers/timer.h>
 
 #include <Libraries/printx.h>
 #include <Libraries/types.h>
@@ -61,68 +62,58 @@ static int set_clock(uint32_t freq) {
     return 0;
 }
 
-static int command(u32 index, u32 arg) {
+int command(u32 index, u32 arg) {
     // Clear interrupt
     INTERRUPT = INTERRUPT;
 
     printf("    CMD: %d\n", index);
 
+    ARG1 = arg;
+
     CMDTM_REG tmp;
+
+    tmp.CommandIndexCheckEnable = true;
+    tmp.CommandCRCCheckEnable = true;
+    tmp.CommandIndex = index;
 
     switch (index) {
 
-    case 0:
-        ARG1 = 0x0;
-        CMDTM->CommandIndex = index;
+    case 0:        
         break;
     case 2:
-        CMDTM->CommandResponseType = 0b01;
-        CMDTM->CommandIndex = index;
+        tmp.CommandResponseType = 0b01;
         break;
     case 3:
-        CMDTM->CommandResponseType = 0b10;
-        CMDTM->CommandIndexCheckEnable = true;
-        CMDTM->CommandCRCCheckEnable = true;
-        CMDTM->CommandIndex = index;
+        tmp.CommandResponseType = 0b10;
         break;
     case 7:
-        ARG1 = arg;
-        CMDTM->CommandResponseType = 0b11;
-        CMDTM->CommandIndex = index;
+        tmp.CommandResponseType = 0b11;
         break;
     case 8:
-        ARG1 = arg;
-        CMDTM->CommandResponseType = 0b10;
-        CMDTM->CommandIndex = index;
+        tmp.CommandResponseType = 0b10;
         break;
     case 9:
-        ARG1 = 0;
-        CMDTM->CommandResponseType = 0b01;
-        CMDTM->CommandIndex = index;
+        tmp.CommandResponseType = 0b01;
     case 17:
-        ARG1 = arg;
         tmp.CommandResponseType = 0b10;
         tmp.CommandIsDataTransfer = true;
         tmp.TransferDataDirection = 1;
-        tmp.CommandCRCCheckEnable = false;
-        tmp.CommandIndex = index;
         tmp.TransferBlockCountEnable = true;
-        *CMDTM = tmp;
         break;
     case 41:
         // Raspberry Pi only supports 3.3V OCR
-        ARG1 = arg;
-        CMDTM->CommandResponseType = 0b10;
-        CMDTM->CommandIndex = index;
+        tmp.CommandResponseType = 0b10;
         break;
     case 55:
-        ARG1 = arg;
-        CMDTM->CommandResponseType = 0b10;
-        CMDTM->CommandIndex = index;
+        tmp.CommandResponseType = 0b10;
         break;
     default:
         return -1;
     }
+
+    *CMDTM = tmp;
+
+    delay(100);
 
     TIMEOUT(!(INTERRUPT & 0x1));
 
@@ -146,7 +137,7 @@ static int init_card() {
     do {
         RETRY(command(55, 0), 5);
         command(41, (1 << 30) | (1 << 20) | (1 << 21));
-        delay(100000);
+        delay(10);
         card.initialized = GET_BITS(RESP0, 31, 31);
     } while (count-- && !card.initialized);
 
@@ -162,14 +153,8 @@ static int init_card() {
     printf("Found RCA: 0x%x\n", card.address);
     response();
 
-    command(9, card.address << 16);
-    delay(1000000);
-    printf("Status: 0x%x\n", STATUS);
-    printf("Interrupt: 0x%x\n", INTERRUPT);
-    response();
-
-    command(7, card.address << 16);
-    delay(1000000);
+    RETRY(command(7, card.address << 16), 7);
+    delay(10);
     response();
     return 0;
 }
@@ -189,12 +174,12 @@ int init_emmc() {
     TIMEOUT(CONTROL1->SRST_HC);
 
     CONTROL1->DATA_TOUNIT = 0xF - 1; // Maximum timeout delay for transfers
-    delay(10000000);
+    delay(1);
 
     if (set_clock(400e3) == -1)
         return -1;
 
-    delay(10000000);
+    delay(1);
 
     if (init_card()) {
         printf("EMMC Initialization Error\n");
@@ -204,39 +189,4 @@ int init_emmc() {
     }
 
     return 0;
-}
-
-int read_emmc(int address) {
-
-TRY:
-    BLKSIZECNT->block_count = 1;
-    BLKSIZECNT->block_size = 512;
-    command(17, address);
-    response();
-
-    int retry = 50;
-    while(INTERRUPT != 0x21 && retry--){
-        printf("Status: 0x%x\n", STATUS);
-        printf("Interrupt: 0x%x\n", INTERRUPT);
-    }
-
-    INTERRUPT = INTERRUPT;
-
-    if(retry <= 0)
-        goto TRY;
-
-    uint32_t buffer[512];
-
-    printf("Status: 0x%x\n", STATUS);
-    printf("Interrupt: 0x%x\n", INTERRUPT);
-
-    delay(100000);
-    int i = 0;
-    while (i < 128){
-        buffer[i++] = DATA;
-        printf("%x ", buffer[i - 1]);
-    }
-    printf("\n");
-
-    printf("Status: 0x%x\n", STATUS);
 }

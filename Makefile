@@ -13,7 +13,8 @@ CPP_Flags =  -g \
 C_Flags = -g \
 		  -nostdlib -fno-builtin -nostartfiles -ffreestanding\
 		  -w \
-			-fPIC
+		  -fPIC \
+		  -O2
 
 BUILD_DIR = build/objects
 BIN_DIR = build/bin

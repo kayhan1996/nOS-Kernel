@@ -204,7 +204,8 @@ void double_buffer(void (*draw)(void)){
         draw();
 
         buffer = !buffer;
-        delay(200000);
+        
+        delay_ms(16);   //WARNING: Might be broken
 
         //delayTime -= 1000000;
 

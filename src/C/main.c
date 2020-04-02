@@ -3,6 +3,8 @@
 #include "Drivers/timer.h"
 #include "Drivers/uart.h"
 #include "Drivers/emmc.h"
+#include "Drivers/mailbox.h"
+#include "Drivers/sd.h"
 
 #include "Memory/kmalloc.h"
 #include "Memory/memory_descriptor.h"
@@ -11,6 +13,7 @@
 #include "Processes/process.h"
 
 #include "Libraries/printx.h"
+#include "Libraries/utils.h"
 
 extern void create_identity_map();
 
@@ -33,18 +36,44 @@ void test_process(char *str) {
     }
 }
 
+u32 get_arm_clock(){
+    u32 message[8];
+    message[0] = 8*sizeof(u32);
+
+    message[1] = 0;
+    message[2] = 0x30002;
+    message[3] = 8;
+    message[4] = 4;
+    message[5] = 3;
+    message[6] = 0;
+
+    message[7] = 0;
+
+    call_mailbox(message, 8);
+
+    return message[6];
+}
+
 void kernel_main() {
     init_uart();
     init_printf(0, putc);
     printf("\033[2J\033[H");
     printf("Kernel Program Started.\n");
 
-    printf("%08x", 4);
+    u64 speed_mhz = get_arm_clock() / 1e6;
+    printf("Clock Speed: %u MHz\n", speed_mhz);
+
+    u32 bytes[128];
 
     if(init_emmc() != 0) return;
 
-    for(int i = 0; i < 10; i++){
-        read_emmc(0x0);
+    sd_readblock(0, bytes, 512);
+
+    for(int i = 0; i < 128; i+=8){
+        for(int j = 0; j < 8; j++){
+            printf("%08x ", bytes[i+j]);
+        }
+        printf("\n");
     }
     
     enable_interrupt_controller();

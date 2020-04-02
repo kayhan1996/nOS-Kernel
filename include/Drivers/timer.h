@@ -21,4 +21,10 @@ void timer_delay(uint32_t seconds);
 
 void timer_delay_arm(uint64_t msecs);
 
+void system_timer(uint32_t microseconds);
+
+void delay(uint32_t microseconds);
+
+void delay_ms(uint32_t ms);
+
 #endif

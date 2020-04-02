@@ -5,7 +5,7 @@
 
 int init_emmc();
 
-int read_emmc(int address);
+int read_emmc(uint32_t address, unsigned char *buffer);
 
 #define HOST_SPEC_3 2
 

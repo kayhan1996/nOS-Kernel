@@ -75,3 +75,20 @@ void timer_delay_arm(uint64_t msecs){
         t = get_current_time_arm();
     }
 }
+
+void system_timer(uint32_t microseconds){
+    volatile uint32_t t = *((uint32_t*)(TIMER_BASE+0x4));
+    uint32_t end = t+microseconds;
+    while(t < end){
+        t = *((uint32_t*)(TIMER_BASE+0x4));
+    }
+}
+
+void delay(uint32_t microseconds){
+    system_timer(microseconds);
+}
+
+void delay_ms(uint32_t ms){
+    uint32_t cycles = 1000*ms;
+    system_timer(cycles);
+}

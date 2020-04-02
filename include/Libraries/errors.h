@@ -4,7 +4,7 @@
 /* Waits for expression then timesout after set time */
 #define TIMEOUT(expr)                                                          \
     {                                                                          \
-        int cnt = 1000000;                                                     \
+        int cnt = 10000;                                                       \
         while ((expr) && cnt != 0) {                                           \
             cnt--;                                                             \
         }                                                                      \
@@ -20,7 +20,7 @@
         int count = n;                                                         \
         while (count && expr) {                                                \
             printf("Retrying\n");                                              \
-            delay(10000000);                                                   \
+            delay(10);                                                         \
             count--;                                                           \
         }                                                                      \
         if (count <= 0) {                                                      \
