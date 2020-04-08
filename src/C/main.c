@@ -4,7 +4,6 @@
 #include "Drivers/uart.h"
 #include "Drivers/emmc.h"
 #include "Drivers/mailbox.h"
-#include "Drivers/sd.h"
 
 #include "Memory/kmalloc.h"
 #include "Memory/memory_descriptor.h"
@@ -14,8 +13,6 @@
 
 #include "Libraries/printx.h"
 #include "Libraries/utils.h"
-
-extern void create_identity_map();
 
 /* Use C linkage. */
 #if defined(__cplusplus)
@@ -64,10 +61,15 @@ void kernel_main() {
     printf("Clock Speed: %u MHz\n", speed_mhz);
 
     u32 bytes[128];
+    for(int i = 0; i < 128; i++){
+        bytes[i] = 0xFF;
+    }
 
-    if(init_emmc() != 0) return;
+    init_emmc();
 
-    sd_readblock(0, bytes, 512);
+    printf("SD Card Read:\n");
+for(int z = 0; z < 1; z++){
+    read_emmc(z << 9, bytes);
 
     for(int i = 0; i < 128; i+=8){
         for(int j = 0; j < 8; j++){
@@ -75,6 +77,7 @@ void kernel_main() {
         }
         printf("\n");
     }
+}
     
     enable_interrupt_controller();
     init_arm_timer(3000000);

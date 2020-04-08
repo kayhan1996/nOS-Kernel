@@ -16,18 +16,18 @@
 /* Retries the expression {n} times before returning failure */
 #define RETRY(expr, n)                                                         \
     {                                                                          \
-        printf("Trying\n");                                                    \
+        log("Trying\n");                                                    \
         int count = n;                                                         \
         while (count && expr) {                                                \
-            printf("Retrying\n");                                              \
+            log("Retrying\n");                                              \
             delay(10);                                                         \
             count--;                                                           \
         }                                                                      \
         if (count <= 0) {                                                      \
-            printf("Failure\n");                                               \
+            log("Failure\n");                                               \
             return -1;                                                         \
         } else                                                                 \
-            printf("Success\n");                                               \
+            log("Success\n");                                               \
     }
 
 #endif /* __ERRORS_H__ */

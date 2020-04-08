@@ -21,15 +21,18 @@ static int set_clock(uint32_t freq) {
     int host_ver = 3;
     int base_clock = 41666666;
 
+    CONTROL1->CLK_EN = false;
+    delay_ms(10);
+
     /* Calculated based on the table on page 47 of
        the SD Host Controller Simplified Specification Version 3.00
        partA2_300.pdf */
     int divisor = round_to_power2(ceiling(base_clock, freq)) >> 1;
 
-    printf("EMMC: Target Frequency: %d, Closest frequency: %d\n", freq,
+    log("EMMC: Target Frequency: %d, Closest frequency: %d\n", freq,
            base_clock / (divisor << 1));
 
-    printf("SD Host Spec %d\n", SLOTISR->SD_VERSION + 1);
+    log("SD Host Spec %d\n", SLOTISR->SD_VERSION + 1);
 
     /* Host Spec 1.0 and 2.0 have 8-bit, power-of-2 clock divider with
      * values between 0x0 and 0x80 */
@@ -50,35 +53,34 @@ static int set_clock(uint32_t freq) {
         CONTROL1->CLK_FREQ_MS2 = (divisor & 0x300) >> 8; // Top 2 bits
     }
 
-    CONTROL1->CLK_INTLEN = true; // Enable internal EMMC clock
+    CONTROL1->CLK_INTLEN = true; // Enable internal EMMC clock  
 
     TIMEOUT(!CONTROL1->CLK_STABLE);
 
     CONTROL1->CLK_EN = true;
 
-    printf("Divisor set to 0x%x\n",
+    log("Divisor set to 0x%x\n",
            (CONTROL1->CLK_FREQ_MS2 << 0xFF) | CONTROL1->CLK_FREQ_LS8);
 
     return 0;
 }
 
 int command(u32 index, u32 arg) {
+    if(index == 41) command(55, 0);
     // Clear interrupt
-    INTERRUPT = INTERRUPT;
+    INTERRUPT->Data = INTERRUPT->Data;
 
-    printf("    CMD: %d\n", index);
+    log("    CMD: %d\n", index);
 
     ARG1 = arg;
 
-    CMDTM_REG tmp;
+    CMDTM_REG tmp = {0};
 
-    tmp.CommandIndexCheckEnable = true;
-    tmp.CommandCRCCheckEnable = true;
     tmp.CommandIndex = index;
 
     switch (index) {
 
-    case 0:        
+    case 0:      
         break;
     case 2:
         tmp.CommandResponseType = 0b01;
@@ -94,11 +96,17 @@ int command(u32 index, u32 arg) {
         break;
     case 9:
         tmp.CommandResponseType = 0b01;
+        break;
+    case 12:
+        tmp.CommandResponseType = 0b11;
+        break;
+    case 16:
+        tmp.CommandResponseType = 0b10;
+        break;
     case 17:
         tmp.CommandResponseType = 0b10;
         tmp.CommandIsDataTransfer = true;
         tmp.TransferDataDirection = 1;
-        tmp.TransferBlockCountEnable = true;
         break;
     case 41:
         // Raspberry Pi only supports 3.3V OCR
@@ -113,15 +121,21 @@ int command(u32 index, u32 arg) {
 
     *CMDTM = tmp;
 
-    delay(100);
+    if(index == 8 || index == 55){
+        delay_ms(100);
+    }else if(index == 41){
+        delay_ms(1000);
+    }
 
-    TIMEOUT(!(INTERRUPT & 0x1));
+    TIMEOUT(!(INTERRUPT->CMD_DONE));
+
+    if(INTERRUPT->ERR) return -1;
 
     return 0;
 }
 
 uint64_t response() {
-    printf("Response 0x%x %x %x %x\n", RESP0, RESP1, RESP2, RESP3);
+    log("Response 0x%x %x %x %x\n", RESP0, RESP1, RESP2, RESP3);
     return RESP0;
 }
 
@@ -135,27 +149,30 @@ static int init_card() {
 
     int count = 20;
     do {
-        RETRY(command(55, 0), 5);
-        command(41, (1 << 30) | (1 << 20) | (1 << 21));
-        delay(10);
+        delay(500);
+        command(41, 0x51ff8000);
         card.initialized = GET_BITS(RESP0, 31, 31);
     } while (count-- && !card.initialized);
 
     if (!card.initialized)
         return -1;
 
-    printf("Card Initialized, waiting for identification\n");
+    
+
+    log("Card Initialized, waiting for identification\n");
 
     RETRY(command(2, 0), 5);
-    printf("Found CID: 0x%x, waiting for card address\n", response());
+    log("Found CID: 0x%x, waiting for card address\n", response());
     RETRY(command(3, 0), 5);
     card.address = GET_BITS(RESP0, 31, 16);
-    printf("Found RCA: 0x%x\n", card.address);
-    response();
+    log("Found RCA: 0x%x\n", card.address);
+
+    
 
     RETRY(command(7, card.address << 16), 7);
-    delay(10);
-    response();
+
+    set_clock(20e6);
+
     return 0;
 }
 
@@ -174,7 +191,7 @@ int init_emmc() {
     TIMEOUT(CONTROL1->SRST_HC);
 
     CONTROL1->DATA_TOUNIT = 0xF - 1; // Maximum timeout delay for transfers
-    delay(1);
+    delay(1);    
 
     if (set_clock(400e3) == -1)
         return -1;
@@ -186,6 +203,30 @@ int init_emmc() {
         return -1;
     } else {
         printf("EMMC Initialization Success\n");
+    }
+
+    
+    return 0;
+}
+
+int read_emmc(uint32_t address, unsigned char *bytes){
+
+    int cnt = 1000000;
+
+    TIMEOUT((STATUS->CMD_INHIBIT | STATUS->DAT_INHIBIT));
+
+    BLKSIZECNT->block_size = 512;
+    BLKSIZECNT->block_count = 1;
+    
+    delay(1);
+
+    command(17, address);
+
+    TIMEOUT(!(INTERRUPT->READ_RDY));
+
+    uint32_t *buf = (uint32_t*)bytes;
+    for(int i = 0; i < 128; i++){
+        buf[i] = DATA;
     }
 
     return 0;

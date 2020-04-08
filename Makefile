@@ -1,3 +1,5 @@
+DEBUG = 0
+
 CC = aarch64-none-elf-gcc
 CC++ = aarch64-none-elf-c++
 OBJDUMP = aarch64-none-elf-objdump
@@ -14,7 +16,8 @@ C_Flags = -g \
 		  -nostdlib -fno-builtin -nostartfiles -ffreestanding\
 		  -w \
 		  -fPIC \
-		  -O2
+		  -O2 \
+		  -DDEBUG=$(DEBUG)
 
 BUILD_DIR = build/objects
 BIN_DIR = build/bin

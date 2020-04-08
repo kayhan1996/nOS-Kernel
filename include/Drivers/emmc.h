@@ -5,7 +5,7 @@
 
 int init_emmc();
 
-int read_emmc(uint32_t address, unsigned char *buffer);
+int read_emmc(uint32_t address, unsigned char *bytes);
 
 #define HOST_SPEC_3 2
 
@@ -81,23 +81,72 @@ typedef union cmd_reg {
 
 typedef union {
     struct {
+        u32 CMD_DONE : 1;   //Command has finished
+        u32 DATA_DONE : 1;  //Data transfer has finished
+        u32 BLOCK_gap : 1;  //Data transfer has stopped at block gap
+        u32 res0 : 1;
+        u32 WRITE_RDY : 1;  //Data can be written to DATA register
+        u32 READ_RDY : 1;   //DATA register contains data to be read
+        u32 res1 : 2;
+        u32 CARD : 1;       //Card made interrupt request
+        u32 res2 : 3;
+        u32 RETUNE : 1;     //Clock retune request was made
+        u32 BOOTACK : 1;    //Boot acknowledge has been received
+        u32 ENDBOOT : 1;    //Boot operation has terminated
+        u32 ERR : 1;        //An error has occured
+        u32 CTO_ERR : 1;    //Timeout on command line
+        u32 CCRC_ERR : 1;   //Command CRC error
+        u32 CEND_ERR : 1;   //End bit on command line not 1
+        u32 CBAD_ERR : 1;   //Incorrect command index in response
+        u32 DTO_ERR : 1;    //Timeout on data line
+        u32 DCRC_ERR : 1;   //Data CRC error
+        u32 DEND_ERR : 1;   //End bit on data line not 1
+        u32 res3 : 1;
+        u32 ACMD_ERR : 1;   //Auto command error
+        u32 res4 : 7;
+    };
+    u32 Data;
+} interrupt_reg;
+
+typedef union {
+    struct {
+        u32 CMD_INHIBIT : 1; //Command line still used by previous command
+        u32 DAT_INHIBIT : 1; //Data lines still used by previous data transfer
+        u32 DAT_ACTIVE : 1; //At least one data line is active
+        u32 res0 : 5;
+        u32 WRITE_TRANSFER : 1; //New data can be written to EMMC
+        u32 READ_TRANSFER : 1; //New data can be read from EMMC
+        u32 res1 : 10;
+        u32 DAT_LEVEL0 : 4; //Value of data lines DAT3 to DAT0
+        u32 CMD_LEVEL : 1;  //Value of command line CMD
+        u32 DAT_LEVEL1 : 4; //Value of data lines DAT7 to DAT4
+        u32 res2 : 3;
+    };
+    u32 Data;
+} status_reg;
+
+typedef union {
+    struct {
         u32 block_size : 10;
         u32 res : 6;
         u32 block_count : 16;
     };
     u32 Data;
-} BLOCK_SIZE_AND_COUNT;
+} block_size_count_reg;
 
 typedef struct {
     u32 initialized : 1;
     u32 address : 16;
 } SDCard;
 
-#define BLKSIZECNT ((volatile BLOCK_SIZE_AND_COUNT *)(EMMC_BASE + 0x4))
+#define BLKSIZECNT ((volatile block_size_count_reg *)(EMMC_BASE + 0x4))
 #define CMDTM ((volatile CMDTM_REG *)(EMMC_BASE + 0xc))
+#define STATUS ((volatile status_reg *)(EMMC_BASE + 0x24))
 #define CONTROL0 ((volatile Control0 *)(EMMC_BASE + 0x28))
 #define CONTROL1 ((volatile Control1 *)(EMMC_BASE + 0x2c))
 #define SLOTISR ((volatile struct SlotISR *)(EMMC_BASE + 0xfc))
+#define INTERRUPT ((volatile interrupt_reg *)(EMMC_BASE + 0x30))
+
 
 #define ARG1 (*(volatile u32 *)(EMMC_BASE + 0x8))
 #define ARG2 (*(volatile u32 *)(EMMC_BASE + 0x0))
@@ -108,9 +157,7 @@ typedef struct {
 #define RESP3 (*(volatile u32 *)(EMMC_BASE + 0x1c))
 
 #define DATA (*(volatile u32 *)(EMMC_BASE + 0x20))
-#define STATUS (*(volatile u32 *)(EMMC_BASE + 0x24))
 
-#define INTERRUPT (*(volatile u32 *)(EMMC_BASE + 0x30))
 
 #define IRPT_MASK (*(volatile u32 *)(EMMC_BASE + 0x34))
 #define IRPT_EN (*(volatile u32 *)(EMMC_BASE + 0x38))
