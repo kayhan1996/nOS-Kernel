@@ -14,6 +14,8 @@
 #include "Libraries/printx.h"
 #include "Libraries/utils.h"
 
+#include "Filesystem/FAT32/ff.h"
+
 /* Use C linkage. */
 #if defined(__cplusplus)
     extern "C" void test_process(char *str);
@@ -51,6 +53,44 @@ u32 get_arm_clock(){
     return message[6];
 }
 
+int strlen(char *s){
+    int count = 0;
+    while(*s++ != '\0')
+        count++;
+    return count;
+}
+
+FRESULT scan_files (
+    char* path        /* Start node to be scanned (***also used as work area***) */
+)
+{
+    FRESULT res;
+    DIR dir;
+    UINT i;
+    static FILINFO fno;
+
+
+    res = f_opendir(&dir, path);                       /* Open the directory */
+    if (res == FR_OK) {
+        for (;;) {
+            res = f_readdir(&dir, &fno);                   /* Read a directory item */
+            if (res != FR_OK || fno.fname[0] == 0) break;  /* Break on error or end of dir */
+            if (fno.fattrib & AM_DIR) {                    /* It is a directory */
+                i = strlen(path);
+                sprintf(&path[i], "%s", fno.fname);
+                res = scan_files(path);                    /* Enter the directory */
+                if (res != FR_OK) break;
+                path[i] = 0;
+            } else {                                       /* It is a file. */
+                printf("%s/%s\n", path, fno.fname);
+            }
+        }
+        f_closedir(&dir);
+    }
+
+    return res;
+}
+
 void kernel_main() {
     init_uart();
     init_printf(0, putc);
@@ -60,24 +100,15 @@ void kernel_main() {
     u64 speed_mhz = get_arm_clock() / 1e6;
     printf("Clock Speed: %u MHz\n", speed_mhz);
 
-    u32 bytes[128];
-    for(int i = 0; i < 128; i++){
-        bytes[i] = 0xFF;
+    FATFS fs;
+    f_mount(&fs, "", 0);
+
+    char line[100];
+    FIL file;
+    f_open(&file, "config.txt", FA_READ);
+    while(f_gets(&line, sizeof(line), &file)){
+        printf(line);
     }
-
-    init_emmc();
-
-    printf("SD Card Read:\n");
-for(int z = 0; z < 1; z++){
-    read_emmc(z << 9, bytes);
-
-    for(int i = 0; i < 128; i+=8){
-        for(int j = 0; j < 8; j++){
-            printf("%08x ", bytes[i+j]);
-        }
-        printf("\n");
-    }
-}
     
     enable_interrupt_controller();
     init_arm_timer(3000000);

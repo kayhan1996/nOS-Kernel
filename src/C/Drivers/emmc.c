@@ -108,6 +108,13 @@ int command(u32 index, u32 arg) {
         tmp.CommandIsDataTransfer = true;
         tmp.TransferDataDirection = 1;
         break;
+    case 18:
+        tmp.CommandResponseType = 0b10;
+        tmp.CommandIsDataTransfer = true;
+        tmp.TransferDataDirection = 1;
+        tmp.TransferAutoCommandEnable = 0b01;
+        tmp.TransferBlockCountEnable = true;
+        tmp.TransferMultipleBlocks = true;
     case 41:
         // Raspberry Pi only supports 3.3V OCR
         tmp.CommandResponseType = 0b10;
@@ -139,6 +146,43 @@ uint64_t response() {
     return RESP0;
 }
 
+int init_CSD(){
+    RETRY(command(9, card.address << 16), 7);
+    response();
+
+    uint32_t csd[4] = {RESP0, RESP1, RESP2, RESP3};
+
+    int GET_CSD_BITS(int a, int b){
+        int offset = a/32;
+        int a_o = a % 32;
+        int b_o = b % 32;
+
+        if(b_o > a_o){
+            int upper = GET_BITS(csd[offset]<<8, a_o, 0);
+            int lower = GET_BITS(csd[offset-1]<<8, 31, b_o);
+            int offset2 = 32-b_o;
+            lower |= upper << offset2;
+            return lower;
+        }else{
+            return GET_BITS(csd[offset]<<8, a_o, b_o);
+        }
+    }
+
+    //High Capacity Card
+    if(GET_CSD_BITS(127, 126) == 0x1){
+        u32 C_SIZE = GET_CSD_BITS(69, 48);
+        card.sector_count = (C_SIZE+1);
+        card.capacity = (C_SIZE+1)*(512*1024);
+        card.sector_size = 512;
+        return 0;
+    }
+    //Standard Capacity Card
+    else{
+        printf("Found SDSC Card. Card type not yet supported\n");
+        return -1;
+    }
+}
+
 static int init_card() {
     IRPT_EN = 0xffffffff;
     IRPT_MASK = 0xffffffff;
@@ -157,8 +201,6 @@ static int init_card() {
     if (!card.initialized)
         return -1;
 
-    
-
     log("Card Initialized, waiting for identification\n");
 
     RETRY(command(2, 0), 5);
@@ -166,9 +208,7 @@ static int init_card() {
     RETRY(command(3, 0), 5);
     card.address = GET_BITS(RESP0, 31, 16);
     log("Found RCA: 0x%x\n", card.address);
-
-    
-
+    RETRY(init_CSD(), 3);
     RETRY(command(7, card.address << 16), 7);
 
     set_clock(20e6);
@@ -205,29 +245,58 @@ int init_emmc() {
         printf("EMMC Initialization Success\n");
     }
 
-    
     return 0;
 }
 
-int read_emmc(uint32_t address, unsigned char *bytes){
-
-    int cnt = 1000000;
+int read_emmc(uint32_t address, uint32_t count, unsigned char *bytes){
 
     TIMEOUT((STATUS->CMD_INHIBIT | STATUS->DAT_INHIBIT));
 
     BLKSIZECNT->block_size = 512;
-    BLKSIZECNT->block_count = 1;
-    
+    BLKSIZECNT->block_count = count;
+       
     delay(1);
 
-    command(17, address);
-
-    TIMEOUT(!(INTERRUPT->READ_RDY));
+    command(18, address);
 
     uint32_t *buf = (uint32_t*)bytes;
-    for(int i = 0; i < 128; i++){
-        buf[i] = DATA;
+
+    int transferedBlocks = count;
+    while(transferedBlocks--){
+        TIMEOUT(!(INTERRUPT->READ_RDY));
+        INTERRUPT->READ_RDY = 1;
+        for(int i = 0; i < 128; i++){
+            buf[i] = DATA;
+        }
+        buf += 128;
     }
 
     return 0;
+}
+
+int status_emmc(){
+    if(card.initialized){
+        return 0;
+    }else{
+        return -1;
+    }
+}
+
+#include "Filesystem/FAT32/diskio.h"
+int ioctl_emmc(uint32_t cmd, void* buff){
+    if(cmd == CTRL_SYNC){
+        TIMEOUT(!(STATUS->WRITE_TRANSFER));
+        return 0;
+    }else if(cmd == GET_SECTOR_COUNT){
+        *(uint32_t*)buff = card.sector_count;
+        return 0;
+    }else if(cmd == GET_SECTOR_SIZE){
+        *(uint32_t*)buff = card.sector_size;
+    }else if(cmd == GET_BLOCK_SIZE){
+        return 1;
+    }else if(cmd == CTRL_TRIM){
+        return 0;
+    }else{
+        return -1;
+    }
 }

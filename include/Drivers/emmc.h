@@ -5,7 +5,11 @@
 
 int init_emmc();
 
-int read_emmc(uint32_t address, unsigned char *bytes);
+int read_emmc(uint32_t address, uint32_t count, unsigned char *bytes);
+
+int status_emmc();
+
+int ioctl_emmc(uint32_t cmd, void* buff);
 
 #define HOST_SPEC_3 2
 
@@ -137,6 +141,9 @@ typedef union {
 typedef struct {
     u32 initialized : 1;
     u32 address : 16;
+    u32 capacity;
+    u32 sector_count;
+    u32 sector_size;
 } SDCard;
 
 #define BLKSIZECNT ((volatile block_size_count_reg *)(EMMC_BASE + 0x4))
